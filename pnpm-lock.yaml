@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 devDependencies:
+  '@nx-go/nx-go':
+    specifier: 3.0.0-beta.0
+    version: 3.0.0-beta.0(nx@18.0.8)
   '@nx/js':
     specifier: 18.0.8
     version: 18.0.8(@types/node@20.11.25)(nx@18.0.8)(typescript@5.4.2)
@@ -1408,6 +1411,15 @@ packages:
       - '@swc-node/register'
       - '@swc/core'
       - debug
+    dev: true
+
+  /@nx-go/nx-go@3.0.0-beta.0(nx@18.0.8):
+    resolution: {integrity: sha512-P0CshaAXnjCm3vZiCQR5fJEjLM/xyRTjYjxpk3VMumZWVwkjOIZuXyhhcTcFhS9l/t5B37koKVpVrgB/MycPHw==}
+    dependencies:
+      '@nx/devkit': 18.0.8(nx@18.0.8)
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - nx
     dev: true
 
   /@nx/devkit@18.0.8(nx@18.0.8):

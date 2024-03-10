@@ -8,7 +8,12 @@
     "production": [
       "default"
     ],
-    "sharedGlobals": []
+    "sharedGlobals": [
+      "{workspaceRoot}/go.work"
+    ]
   },
-  "nxCloudAccessToken": "MDhjMTY2YjktMGU0OS00MzY0LTljZjUtNDcwMDc4ZWJjMzY2fHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "MDhjMTY2YjktMGU0OS00MzY0LTljZjUtNDcwMDc4ZWJjMzY2fHJlYWQtd3JpdGU=",
+  "plugins": [
+    "@nx-go/nx-go"
+  ]
 }
