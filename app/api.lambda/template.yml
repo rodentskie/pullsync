@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+
+Description:
+  hello-world-app
+Resources:
+  Hello:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: bootstrap
+      CodeUri: ./bin/bootstrap.zip
+      Runtime: provided.al2023
+      Timeout: 10
+      Events:
+        Ping:
+          Type: Api
+          Properties:
+            Path: /ping
+            Method: get
