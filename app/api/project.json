@@ -23,6 +23,21 @@
     },
     "lint": {
       "executor": "@nx-go/nx-go:lint"
+    },
+    "lambda.build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "make build"
+      }
+    },
+    "lambda.serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "sam local start-api"
+      },
+      "dependsOn": ["lambda.build"]
     }
   }
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -37,4 +38,18 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println(string(body))
+
+	bodyBytes := Response{
+		Message: "Just a response.",
+	}
+
+	j, err := json.Marshal(bodyBytes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+
 }
