@@ -6,5 +6,6 @@ import (
 )
 
 func MainRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/", handlers.IndexRequestHandler)
 	mux.HandleFunc("POST /pull-request", handlers.PullRequestHandler)
 }
