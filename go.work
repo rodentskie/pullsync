@@ -1,3 +1,8 @@
-go 1.22
+go 1.22.1
 
-use ./app/api
+use (
+	./app/api
+	./library/go/constants
+	./library/go/env
+	./library/go/logger
+)
