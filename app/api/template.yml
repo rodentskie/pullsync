@@ -19,9 +19,9 @@ Resources:
           Type: Api
           Properties:
             Path: /
-            Method: get
-        PullRequest:
+            Method: ANY
+        ApiEvent:
           Type: Api
           Properties:
-            Path: /pull-request
-            Method: post
+            Path: /{proxy+}
+            Method: ANY
