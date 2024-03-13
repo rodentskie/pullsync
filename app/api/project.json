@@ -24,6 +24,27 @@
     "lint": {
       "executor": "@nx-go/nx-go:lint"
     },
+    "tidy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "go mod tidy"
+      }
+    },
+    "get": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "go get"
+      }
+    },
+    "install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "go get {args.package}"
+      }
+    },
     "lambda.build": {
       "executor": "nx:run-commands",
       "options": {
@@ -38,6 +59,20 @@
         "command": "sam local start-api"
       },
       "dependsOn": ["lambda.build"]
+    },
+    "infra.preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi preview"
+      }
+    },
+    "infra.up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi up -y"
+      }
     }
   }
 }

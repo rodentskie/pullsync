@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -37,7 +36,9 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	fmt.Println(string(body))
+	zapLog.Info("PR body",
+		zap.String("req", string(body)),
+	)
 
 	bodyBytes := Response{
 		Message: "Just a response.",

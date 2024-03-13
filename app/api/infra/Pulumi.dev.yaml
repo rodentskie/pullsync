@@ -1,0 +1,13 @@
+encryptionsalt: v1:cAPbxz5qq94=:v1:FoLbd7ETvxeBe6im:OrEs1FFO0KsQ536nwtkHcu28thRFGw==
+config:
+  aws:region: ap-southeast-2
+  pulumi:tags:
+    team: DevOps
+    automated: "true"
+    tool: pulumi
+  lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  lambdaRoleName: slack_pr_lambda_role
+  lambdaFunctionName: slack_pr_lambda
+  env: test
+  region: ap-southeast-2
+  accountId: 118169613081

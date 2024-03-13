@@ -1,0 +1,55 @@
+package lambda
+
+import (
+	"encoding/base64"
+	"time"
+
+	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/iam"
+	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/lambda"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+)
+
+func LambdaFunction(ctx *pulumi.Context) error {
+	conf := config.New(ctx, "")
+	lambdaRoleName := conf.Require("lambdaRoleName")
+	lambdaFunctionName := conf.Require("lambdaFunctionName")
+	env := conf.Require("env")
+
+	// built zip file
+	fileName := "../bin/bootstrap.zip"
+
+	now := time.Now()
+	dateTimeString := now.Format("2006-01-02T15:04:05Z07:00")
+	dateTimeBytes := []byte(dateTimeString)
+	base64EncodedHash := base64.StdEncoding.EncodeToString(dateTimeBytes)
+
+	iamForLambda, err := iam.LookupRole(ctx, &iam.LookupRoleArgs{
+		Name: lambdaRoleName,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = lambda.NewFunction(ctx, "test_lambda", &lambda.FunctionArgs{
+		Code:           pulumi.NewFileArchive(fileName),
+		Name:           pulumi.String(lambdaFunctionName),
+		Role:           pulumi.String(iamForLambda.Arn),
+		Handler:        pulumi.String("bootstrap"),
+		SourceCodeHash: pulumi.String(base64EncodedHash),
+		Runtime:        pulumi.String("provided.al2023"),
+		Environment: &lambda.FunctionEnvironmentArgs{
+			Variables: pulumi.StringMap{
+				"ENV": pulumi.String(env),
+			},
+		},
+		Tags: pulumi.StringMap{
+			"Name": pulumi.String(lambdaFunctionName),
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
