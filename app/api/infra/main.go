@@ -1,7 +1,6 @@
 package main
 
 import (
-	"slack-pr-lambda/api/infra/api"
 	"slack-pr-lambda/api/infra/lambda"
 	lambdaiamrole "slack-pr-lambda/api/infra/lambda_iam_role"
 
@@ -17,9 +16,9 @@ func main() {
 			return err
 		}
 
-		if err := api.ApiGateway(ctx); err != nil {
-			return err
-		}
+		// if err := api.ApiGateway(ctx); err != nil {
+		// 	return err
+		// }
 		return nil
 	})
 }

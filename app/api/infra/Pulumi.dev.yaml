@@ -8,6 +8,6 @@ config:
   lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
   lambdaRoleName: slack_pr_lambda_role
   lambdaFunctionName: slack_pr_lambda
-  env: test
+  env: stage
   region: ap-southeast-2
   accountId: 118169613081

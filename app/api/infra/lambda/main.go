@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/pulumi/pulumi-aws-apigateway/sdk/v2/go/apigateway"
 	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/iam"
 	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/lambda"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -31,7 +32,7 @@ func LambdaFunction(ctx *pulumi.Context) error {
 		return err
 	}
 
-	_, err = lambda.NewFunction(ctx, "test_lambda", &lambda.FunctionArgs{
+	lambdaFn, err := lambda.NewFunction(ctx, "test_lambda", &lambda.FunctionArgs{
 		Code:           pulumi.NewFileArchive(fileName),
 		Name:           pulumi.String(lambdaFunctionName),
 		Role:           pulumi.String(iamForLambda.Arn),
@@ -51,5 +52,22 @@ func LambdaFunction(ctx *pulumi.Context) error {
 	if err != nil {
 		return err
 	}
+
+	methodGet := apigateway.MethodGET
+	methodPost := apigateway.MethodPOST
+	_, err = apigateway.NewRestAPI(ctx, "api_slack_pr", &apigateway.RestAPIArgs{
+		Routes: []apigateway.RouteArgs{
+			{
+				Path: "/", Method: &methodGet, EventHandler: lambdaFn,
+			},
+			{
+				Path: "/pull-request", Method: &methodPost, EventHandler: lambdaFn,
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
