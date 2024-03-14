@@ -29,7 +29,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatalf("error closing the logger. %v\n", err)
 		}
 	}()
-	api := slack.New("xoxb-6784216476215-6792191236806-2VudZERemPUsgiFuVAGmfbBJ")
+	api := slack.New("token")
 	inlineCode := "code"
 	codeBlock := `func main() {
     fmt.Println("Hello, world!")
