@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"slack-pr-lambda/env"
 	"slack-pr-lambda/logger"
 	"syscall"
 
@@ -29,7 +30,8 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatalf("error closing the logger. %v\n", err)
 		}
 	}()
-	api := slack.New("token")
+	token := env.GetEnv("SLACK_TOKEN", "")
+	api := slack.New(token)
 	inlineCode := "code"
 	codeBlock := `func main() {
     fmt.Println("Hello, world!")
@@ -49,7 +51,7 @@ And a code block:
 `, inlineCode, codeBlock)
 
 	channelID, timestamp, err := api.PostMessage(
-		"general",                               // Channel name. Ensure your bot is a member of this channel.
+		"pull-requests",                         // Channel name. Ensure your bot is a member of this channel.
 		slack.MsgOptionText(messageText, false), // Passing the message with bullet points
 		slack.MsgOptionAsUser(true),             // Send as a user, not as a bot
 	)
