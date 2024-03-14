@@ -4,6 +4,10 @@ use (
 	./app/api
 	./app/api.lambda
 	./library/go/constants
+	./library/go/dynamo-db
 	./library/go/env
 	./library/go/logger
+	./library/go/map-struct
+	./library/go/slack
+	./library/go/types
 )

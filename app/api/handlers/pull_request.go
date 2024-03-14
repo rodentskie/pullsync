@@ -3,15 +3,14 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"slack-pr-lambda/env"
+	db "slack-pr-lambda/dynamodb"
 	"slack-pr-lambda/logger"
+	"slack-pr-lambda/types"
 	"syscall"
 
-	"github.com/slack-go/slack"
 	"go.uber.org/zap"
 )
 
@@ -21,61 +20,67 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		err := r.Body.Close()
 		if err != nil {
-			zapLog.Fatal("error close req body",
-				zap.Error(err),
-			)
+			log.Fatalf("error close req body. %v\n", err)
 		}
+	}()
 
+	defer func() {
 		if err := zapLog.Sync(); err != nil && !errors.Is(err, syscall.EINVAL) {
 			log.Fatalf("error closing the logger. %v\n", err)
 		}
 	}()
-	token := env.GetEnv("SLACK_TOKEN", "")
-	api := slack.New(token)
-	inlineCode := "code"
-	codeBlock := `func main() {
-    fmt.Println("Hello, world!")
-}`
 
-	// Use fmt.Sprintf to construct the message text with dynamic content
-	messageText := fmt.Sprintf(`Here are some bullet points:
-• Item 1
-• Item 2
-• Item 3
-
-And here is an inline code: `+"`%s`"+`
-
-And a code block:
-`+"```%s```"+`
-
-`, inlineCode, codeBlock)
-
-	channelID, timestamp, err := api.PostMessage(
-		"pull-requests",                         // Channel name. Ensure your bot is a member of this channel.
-		slack.MsgOptionText(messageText, false), // Passing the message with bullet points
-		slack.MsgOptionAsUser(true),             // Send as a user, not as a bot
-	)
-	if err != nil {
-		log.Fatalf("Failed to send message: %v", err)
-	}
-
-	fmt.Printf("Message successfully sent to channel %s at %s", channelID, timestamp)
-
-	threadTimestamp := "1710406869.549219"
-	_, _, err = api.PostMessage(
-		channelID,
-		slack.MsgOptionText("This is a reply in a thread! v2", false),
-		slack.MsgOptionTS(threadTimestamp),
-	)
-	if err != nil {
-		log.Fatalf("Failed to send message: %v", err)
-	}
-
+	// read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		zapLog.Fatal("error read request body",
 			zap.Error(err),
 		)
+	}
+
+	// partial parse into map string JSON
+	var result map[string]json.RawMessage
+	if err := json.Unmarshal(body, &result); err != nil {
+		zapLog.Error("error unmarshal JSON raw message",
+			zap.Error(err),
+		)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// get unique action key
+	var action string
+	if err := json.Unmarshal(result["action"], &action); err != nil {
+		log.Fatal(err)
+	}
+
+	if action == "opened" {
+		// parse request
+		var input types.OpenPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		svc := db.DynamoDbConnection()
+		item := &types.TablePullRequestData{
+			ID:             "testidx",
+			PullRequestId:  34,
+			SlackTimeStamp: "132132.12",
+		}
+
+		err = db.InsertItem(svc, item)
+		if err != nil {
+			zapLog.Error("error insert data",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	bodyBytes := Response{
@@ -90,5 +95,4 @@ And a code block:
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
-
 }

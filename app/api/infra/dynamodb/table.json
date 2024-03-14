@@ -1,0 +1,12 @@
+{
+  "TableName": "PullRequests",
+  "KeySchema": [
+    { "AttributeName": "id", "KeyType": "HASH" },
+    { "AttributeName": "pullRequestId", "KeyType": "RANGE" }
+  ],
+  "AttributeDefinitions": [
+    { "AttributeName": "id", "AttributeType": "S" },
+    { "AttributeName": "pullRequestId", "AttributeType": "N" }
+  ],
+  "ProvisionedThroughput": { "ReadCapacityUnits": 5, "WriteCapacityUnits": 5 }
+}
