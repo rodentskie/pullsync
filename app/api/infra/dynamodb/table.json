@@ -8,5 +8,17 @@
     { "AttributeName": "id", "AttributeType": "S" },
     { "AttributeName": "pullRequestId", "AttributeType": "N" }
   ],
-  "ProvisionedThroughput": { "ReadCapacityUnits": 5, "WriteCapacityUnits": 5 }
+  "ProvisionedThroughput": { "ReadCapacityUnits": 5, "WriteCapacityUnits": 5 },
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "PullRequestIdIndex",
+      "KeySchema": [
+        { "AttributeName": "pullRequestId", "KeyType": "HASH" }
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      },
+      "ProvisionedThroughput": { "ReadCapacityUnits": 5, "WriteCapacityUnits": 5 }
+    }
+  ]
 }

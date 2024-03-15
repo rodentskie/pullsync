@@ -25,3 +25,15 @@ type pullRequestRepository struct {
 	Name    string `json:"name"`
 	HtmlUrl string `json:"html_url"`
 }
+
+type issue struct {
+	ID      int    `json:"id"`
+	Number  int    `json:"number"`
+	HtmlUrl string `json:"html_url"`
+}
+
+type comment struct {
+	ID      int32           `json:"id"`
+	HtmlUrl string          `json:"html_url"`
+	User    pullRequestUser `json:"user"`
+}

@@ -18,7 +18,7 @@ func MapToStruct(data map[string]interface{}, targetStruct interface{}) error {
 	return nil
 }
 
-func StructToMap(input interface{}) map[string]interface{} {
+func StructToMapInterface(input interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
 	val := reflect.ValueOf(input)
 	typ := val.Type()

@@ -1,8 +1,96 @@
 package slack
 
-func LibraryGoSlack(name string) string {
-	result := "LibraryGoSlack " + name
-	return result
+import (
+	"fmt"
+	"slack-pr-lambda/constants"
+	"slack-pr-lambda/env"
+	"slack-pr-lambda/mapstruct"
+	"slack-pr-lambda/types"
+
+	"github.com/slack-go/slack"
+)
+
+func SlackSendMessage(input types.OpenPullRequest) (string, error) {
+	token := env.GetEnv("SLACK_TOKEN", "")
+	channel := env.GetEnv("SLACK_CHANNEL", "")
+	api := slack.New(token)
+
+	messageText := fmt.Sprintf("New <%s|pull request> in `%s`.", input.PullRequest.HtmlUrl, input.Repository.Name)
+
+	_, timestamp, err := api.PostMessage(
+		channel,
+		slack.MsgOptionText(messageText, false),
+		slack.MsgOptionAsUser(false),
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return timestamp, nil
+}
+
+func SlackSendMessageThreadReviewers(timeStamp string, reviewers []string) error {
+	token := env.GetEnv("SLACK_TOKEN", "")
+	channel := env.GetEnv("SLACK_CHANNEL", "")
+	api := slack.New(token)
+
+	slackUsers := constants.SlackUsers()
+	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
+
+	var slackMention string = "Please review: "
+	for _, user := range reviewers {
+		slackMention += fmt.Sprintf("<@%s>", slackUsersMap[user])
+	}
+
+	_, _, err := api.PostMessage(
+		channel,
+		slack.MsgOptionText(slackMention, false),
+		slack.MsgOptionTS(timeStamp),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SlackSendMessageThreadComment(timeStamp string, input *types.CommentPullRequest) error {
+	token := env.GetEnv("SLACK_TOKEN", "")
+	channel := env.GetEnv("SLACK_CHANNEL", "")
+	api := slack.New(token)
+
+	slackUsers := constants.SlackUsers()
+	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
+
+	messageText := fmt.Sprintf("<@%s> had commented in the PR, click <%s|here>.", slackUsersMap[input.Comment.User.Login], input.Comment.HtmlUrl)
+
+	_, _, err := api.PostMessage(
+		channel,
+		slack.MsgOptionText(messageText, false),
+		slack.MsgOptionTS(timeStamp),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SlackSendMessageThreadClosed(timeStamp string) error {
+	token := env.GetEnv("SLACK_TOKEN", "")
+	channel := env.GetEnv("SLACK_CHANNEL", "")
+	api := slack.New(token)
+
+	messageText := "PR is closed."
+
+	_, _, err := api.PostMessage(
+		channel,
+		slack.MsgOptionText(messageText, false),
+		slack.MsgOptionTS(timeStamp),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /*

@@ -3,11 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	db "slack-pr-lambda/dynamodb"
 	"slack-pr-lambda/logger"
+	"slack-pr-lambda/slack"
 	"slack-pr-lambda/types"
 	"syscall"
 
@@ -66,11 +68,35 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		timeStamp, err := slack.SlackSendMessage(input)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		if len(input.PullRequest.RequestedReviewers) > 0 {
+			reviewers := []string{}
+			for _, reviewer := range input.PullRequest.RequestedReviewers {
+				reviewers = append(reviewers, reviewer.Login)
+			}
+			err := slack.SlackSendMessageThreadReviewers(timeStamp, reviewers)
+
+			if err != nil {
+				zapLog.Error("error slack send message",
+					zap.Error(err),
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		}
+
 		svc := db.DynamoDbConnection()
 		item := &types.TablePullRequestData{
-			ID:             "testidx",
-			PullRequestId:  34,
-			SlackTimeStamp: "132132.12",
+			ID:             fmt.Sprintf("%d", input.PullRequest.ID),
+			PullRequestId:  input.Number,
+			SlackTimeStamp: timeStamp,
 		}
 
 		err = db.InsertItem(svc, item)
@@ -83,8 +109,103 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if action == "review_requested" {
+		// parse request
+		var input types.ReviewRequestPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		svc := db.DynamoDbConnection()
+		timeStamp, err := db.GetSlackTimeStampReviewRequest(svc, &input)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		reviewers := []string{input.RequestedReviewer.Login}
+		err = slack.SlackSendMessageThreadReviewers(timeStamp, reviewers)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if action == "created" {
+		// parse request
+		var input types.CommentPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		svc := db.DynamoDbConnection()
+		timeStamp, err := db.GetSlackTimeStampIssue(svc, &input)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		err = slack.SlackSendMessageThreadComment(timeStamp, &input)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if action == "closed" {
+		// parse request
+		var input types.ClosedPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		svc := db.DynamoDbConnection()
+		timeStamp, err := db.GetSlackTimeStampClose(svc, &input)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		err = slack.SlackSendMessageThreadClosed(timeStamp)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	bodyBytes := Response{
-		Message: string(body),
+		Message: "Webhook done.",
 	}
 
 	j, err := json.Marshal(bodyBytes)
