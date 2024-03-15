@@ -45,6 +45,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			zap.Error(err),
 		)
 	}
+	fmt.Printf("Payload %v", string(body))
 
 	// partial parse into map string JSON
 	var result map[string]json.RawMessage
