@@ -20,6 +20,8 @@ func LambdaFunction(ctx *pulumi.Context) error {
 	env := conf.Require("env")
 	dbEndpoint := conf.Require("dbEndpoint")
 	region := conf.Require("region")
+	githubOwner := conf.Require("githubOwner")
+	githubToken := conf.Require("githubToken")
 
 	// built zip file
 	fileName := "../bin/bootstrap.zip"
@@ -50,6 +52,8 @@ func LambdaFunction(ctx *pulumi.Context) error {
 				"SLACK_CHANNEL": pulumi.String(slackChannel),
 				"DB_ENDPOINT":   pulumi.String(dbEndpoint),
 				"REGION":        pulumi.String(region),
+				"GITHUB_TOKEN":  pulumi.String(githubToken),
+				"GITHUB_OWNER":  pulumi.String(githubOwner),
 			},
 		},
 		Tags: pulumi.StringMap{

@@ -21,10 +21,10 @@ type ReviewRequestPullRequest struct {
 }
 
 type CommentPullRequest struct {
-	Action      string      `json:"action"`
-	Issue       issue       `json:"issue"`
-	PullRequest pullRequest `json:"pull_request"`
-	Comment     comment     `json:"comment"`
+	Action     string                `json:"action"`
+	Issue      issue                 `json:"issue"`
+	Comment    comment               `json:"comment"`
+	Repository pullRequestRepository `json:"repository"`
 }
 
 type ClosedPullRequest struct {

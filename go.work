@@ -6,6 +6,7 @@ use (
 	./library/go/constants
 	./library/go/dynamo-db
 	./library/go/env
+	./library/go/github
 	./library/go/logger
 	./library/go/map-struct
 	./library/go/slack

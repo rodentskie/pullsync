@@ -10,6 +10,7 @@ import (
 	"slack-pr-lambda/constants"
 	db "slack-pr-lambda/dynamodb"
 	"slack-pr-lambda/env"
+	"slack-pr-lambda/github"
 	"slack-pr-lambda/logger"
 	"slack-pr-lambda/mapstruct"
 	"slack-pr-lambda/slack"
@@ -183,7 +184,15 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.Issue.Number)
+		prId, err := github.GetPullRequestId(input.Repository.Name, input.Issue.Number)
+		if err != nil {
+			zapLog.Error("error get pull request id",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		timeStamp, err := db.GetSlackTimeStamp(svc, int(prId), input.Issue.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
