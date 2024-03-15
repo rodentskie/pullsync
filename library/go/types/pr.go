@@ -19,6 +19,7 @@ type pullRequest struct {
 	Title              string                 `json:"title"`
 	User               pullRequestUser        `json:"user"`
 	RequestedReviewers []pullRequestReviewers `json:"requested_reviewers"`
+	MergedAt           string                 `json:"merged_at"`
 }
 
 type sender struct {

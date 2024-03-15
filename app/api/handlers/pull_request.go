@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"slack-pr-lambda/constants"
 	db "slack-pr-lambda/dynamodb"
+	"slack-pr-lambda/env"
 	"slack-pr-lambda/logger"
 	"slack-pr-lambda/mapstruct"
 	"slack-pr-lambda/slack"
@@ -19,6 +20,8 @@ import (
 )
 
 func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
+	env := env.GetEnv("ENV", "local")
+
 	l := logger.LoggerConfig()
 	zapLog, _ := l.Build()
 
@@ -45,7 +48,10 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			zap.Error(err),
 		)
 	}
-	fmt.Printf("Payload %v", string(body))
+
+	if env != "local" {
+		fmt.Printf("Payload %v", string(body))
+	}
 
 	// partial parse into map string JSON
 	var result map[string]json.RawMessage
@@ -226,8 +232,11 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			if input.PullRequest.State == "closed" {
-				message := fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
-				message += fmt.Sprintf("View <%s|here>", input.Sender.Login)
+				var message string = fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				if len(input.PullRequest.MergedAt) > 0 {
+					message = fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				}
+
 				err := slack.SlackSendMessageThread(timeStamp, message)
 				if err != nil {
 					zapLog.Error("error slack send message",
@@ -239,19 +248,6 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
-			if input.PullRequest.State == "merged" {
-				message := fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
-				message += fmt.Sprintf("View <%s|here>", input.Sender.Login)
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
-					zapLog.Error("error slack send message",
-						zap.Error(err),
-					)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
-			}
 		}
 	}
 
