@@ -40,3 +40,16 @@ func SlackSendMessageThread(timeStamp string, message string) error {
 	}
 	return nil
 }
+
+func SlackAddReaction(timeStamp string, emoji string) error {
+	token := env.GetEnv("SLACK_TOKEN", "")
+	channel := env.GetEnv("SLACK_CHANNEL", "")
+	api := slack.New(token)
+
+	err := api.AddReaction(emoji, slack.NewRefToMessage(channel, timeStamp))
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

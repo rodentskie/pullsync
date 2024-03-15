@@ -29,6 +29,8 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	slackUsers := constants.SlackUsers()
 	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
 
+	emoji := constants.Emoji()
+
 	defer func() {
 		err := r.Body.Close()
 		if err != nil {
@@ -82,7 +84,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-		messageText := fmt.Sprintf("<@%s> opened new <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], input.PullRequest.HtmlUrl, input.Repository.Name)
+		messageText := fmt.Sprintf("<@%s> %s opened new <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
 		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {
 			zapLog.Error("error slack send message",
@@ -99,7 +101,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			var slackMention string = "Please review: "
 			for _, user := range reviewers {
-				slackMention += fmt.Sprintf("<@%s>", slackUsersMap[user])
+				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
 			err = slack.SlackSendMessageThread(timeStamp, slackMention)
 			if err != nil {
@@ -109,7 +111,14 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
+		}
 
+		if err := slack.SlackAddReaction(timeStamp, emoji.Opened); err != nil {
+			zapLog.Error("error slack add reaction",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 
 		svc := db.DynamoDbConnection()
@@ -156,7 +165,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			reviewers := []string{input.RequestedReviewer.Login}
 			var slackMention string = "Please review: "
 			for _, user := range reviewers {
-				slackMention += fmt.Sprintf("<@%s>", slackUsersMap[user])
+				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
 			err = slack.SlackSendMessageThread(timeStamp, slackMention)
 			if err != nil {
@@ -202,7 +211,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			message := fmt.Sprintf("<@%s> submitted an issue comment.", slackUsersMap[input.Comment.User.Login])
+			message := fmt.Sprintf("<@%s> %s submitted an issue comment.", slackUsersMap[input.Comment.User.Login], emoji.Comment)
 			message += fmt.Sprintf("```%s```\n", input.Comment.Body)
 			message += fmt.Sprintf("View <%s|here>", input.Comment.HtmlUrl)
 			err = slack.SlackSendMessageThread(timeStamp, message)
@@ -240,9 +249,19 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			var message string = fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+			closeEmoji := emoji.Closed
+			message := fmt.Sprintf("<@%s> closed the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Closed)
 			if len(input.PullRequest.MergedAt) > 0 {
-				message = fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				closeEmoji = emoji.Merged
+				message = fmt.Sprintf("<@%s> merged the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Merged)
+			}
+
+			if err := slack.SlackAddReaction(timeStamp, closeEmoji); err != nil {
+				zapLog.Error("error slack add reaction",
+					zap.Error(err),
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
 			}
 
 			err := slack.SlackSendMessageThread(timeStamp, message)
@@ -292,7 +311,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			if input.Review.State == "commented" {
-				message := fmt.Sprintf("<@%s> submitted a review comment. ", slackUsersMap[input.PullRequest.User.Login])
+				message := fmt.Sprintf("<@%s> submitted a review comment %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Reviewed)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
@@ -308,10 +327,19 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if input.Review.State == "approved" {
-				message := fmt.Sprintf("<@%s> approved the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				message := fmt.Sprintf("<@%s> approved the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Approved)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
+
+				if err := slack.SlackAddReaction(timeStamp, emoji.Approved); err != nil {
+					zapLog.Error("error slack add reaction",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
 				message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
 				err := slack.SlackSendMessageThread(timeStamp, message)
 				if err != nil {
@@ -350,7 +378,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			commitLink := fmt.Sprintf("%s/commits/%s", input.PullRequest.HtmlUrl, input.After)
-			message := fmt.Sprintf("<@%s> committed a change. See it <%s|here>.", slackUsersMap[input.PullRequest.User.Login], commitLink)
+			message := fmt.Sprintf("<@%s> %s pushed a change. See it <%s|here>.", slackUsersMap[input.PullRequest.User.Login], emoji.Pushed, commitLink)
 			err = slack.SlackSendMessageThread(timeStamp, message)
 			if err != nil {
 				zapLog.Error("error slack send message",
@@ -396,7 +424,10 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			if input.CheckRun.Status == "completed" && len(input.CheckRun.CompletedAt) > 0 {
-				message := fmt.Sprintf("Check run <%s|%s> has completed.", input.CheckRun.HtmlUrl, input.CheckRun.Name)
+				message := fmt.Sprintf("Check run <%s|%s> %s.", input.CheckRun.HtmlUrl, input.CheckRun.Name, emoji.CheckPassed)
+				if input.CheckRun.Conclusion == "failure" {
+					message = fmt.Sprintf("Check run <%s|%s> %s.", input.CheckRun.HtmlUrl, input.CheckRun.Name, emoji.CheckFailed)
+				}
 				err := slack.SlackSendMessageThread(timeStamp, message)
 				if err != nil {
 					zapLog.Error("error slack send message",
@@ -407,17 +438,6 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			if input.CheckRun.Status == "failed" {
-				message := fmt.Sprintf("Check run <%s|%s> has failed.", input.CheckRun.HtmlUrl, input.CheckRun.Name)
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
-					zapLog.Error("error slack send message",
-						zap.Error(err),
-					)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-			}
 		}
 	}
 
@@ -434,7 +454,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		messageText := fmt.Sprintf("<@%s> Reopened <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], input.PullRequest.HtmlUrl, input.Repository.Name)
+		messageText := fmt.Sprintf("<@%s> %s Reopened <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
 
 		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {
@@ -452,7 +472,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			var slackMention string = "Please review: "
 			for _, user := range reviewers {
-				slackMention += fmt.Sprintf("<@%s>", slackUsersMap[user])
+				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
 			err = slack.SlackSendMessageThread(timeStamp, slackMention)
 			if err != nil {
