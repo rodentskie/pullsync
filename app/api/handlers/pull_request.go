@@ -81,8 +81,8 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-
-		timeStamp, err := slack.SlackSendMessage(input)
+		messageText := fmt.Sprintf("<@%s> opened new <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], input.PullRequest.HtmlUrl, input.Repository.Name)
+		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -142,7 +142,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.Number)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -183,7 +183,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.Issue.Number)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.Issue.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -221,7 +221,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.Number)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -272,7 +272,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.Number)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.PullRequest.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -330,7 +330,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.Number)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.PullRequest.ID, input.PullRequest.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -367,14 +367,16 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
+		var pullRequestNumber int
 		var pullRequestId int
 
 		// should always only have one element
 		for _, e := range input.CheckRun.PullRequests {
-			pullRequestId = e.Number
+			pullRequestId = e.ID
+			pullRequestNumber = e.Number
 		}
 
-		timeStamp, err := db.GetSlackTimeStamp(svc, pullRequestId)
+		timeStamp, err := db.GetSlackTimeStamp(svc, pullRequestId, pullRequestNumber)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),
@@ -407,6 +409,67 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+		}
+	}
+
+	// PR reopened
+	if action == "reopened" {
+		// parse request
+		var input types.OpenPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		messageText := fmt.Sprintf("<@%s> Reopened <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], input.PullRequest.HtmlUrl, input.Repository.Name)
+
+		timeStamp, err := slack.SlackSendMessage(input, messageText)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		if len(input.PullRequest.RequestedReviewers) > 0 {
+			reviewers := []string{}
+			for _, reviewer := range input.PullRequest.RequestedReviewers {
+				reviewers = append(reviewers, reviewer.Login)
+			}
+
+			var slackMention string = "Please review: "
+			for _, user := range reviewers {
+				slackMention += fmt.Sprintf("<@%s>", slackUsersMap[user])
+			}
+			err = slack.SlackSendMessageThread(timeStamp, slackMention)
+			if err != nil {
+				zapLog.Error("error slack send message",
+					zap.Error(err),
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+		}
+
+		svc := db.DynamoDbConnection()
+		item := &types.TablePullRequestData{
+			ID:             fmt.Sprintf("%d", input.PullRequest.ID),
+			PullRequestId:  input.Number,
+			SlackTimeStamp: timeStamp,
+		}
+
+		err = db.InsertItem(svc, item)
+		if err != nil {
+			zapLog.Error("error insert data",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
 		}
 	}
 

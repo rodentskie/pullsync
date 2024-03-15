@@ -1,6 +1,7 @@
 package dynamodb
 
 import (
+	"errors"
 	"slack-pr-lambda/env"
 	"slack-pr-lambda/types"
 	"strconv"
@@ -51,7 +52,38 @@ func InsertItem(svc *dynamodb.DynamoDB, item *types.TablePullRequestData) error 
 	return nil
 }
 
-func GetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error) {
+func GetSlackTimeStamp(svc *dynamodb.DynamoDB, id int, pullRequestId int) (string, error) {
+	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
+
+	result, err := svc.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(strconv.Itoa(id)),
+			},
+			"pullRequestId": {
+				N: aws.String(strconv.Itoa(pullRequestId)),
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if result.Item == nil {
+		return "", errors.New("no data found")
+	}
+
+	item := types.TablePullRequestData{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
+	if err != nil {
+		return "", err
+	}
+
+	return item.SlackTimeStamp, nil
+}
+
+func DeprecatedGetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error) {
 	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
 
 	result, err := svc.Query(&dynamodb.QueryInput{
