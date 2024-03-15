@@ -39,7 +39,9 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			zap.Error(err),
 		)
 	}
-
+	zapLog.Info("Body",
+		zap.String("body", string(body)),
+	)
 	// partial parse into map string JSON
 	var result map[string]json.RawMessage
 	if err := json.Unmarshal(body, &result); err != nil {
