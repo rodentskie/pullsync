@@ -221,7 +221,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		svc := db.DynamoDbConnection()
-		timeStamp, err := db.GetSlackTimeStampClose(svc, &input)
+		timeStamp, err := db.GetSlackTimeStamp(svc, input.Number)
 		if err != nil {
 			zapLog.Error("error slack send message",
 				zap.Error(err),

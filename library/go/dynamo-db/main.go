@@ -1,7 +1,6 @@
 package dynamodb
 
 import (
-	"errors"
 	"slack-pr-lambda/env"
 	"slack-pr-lambda/types"
 	"strconv"
@@ -52,37 +51,6 @@ func InsertItem(svc *dynamodb.DynamoDB, item *types.TablePullRequestData) error 
 	return nil
 }
 
-func GetSlackTimeStampClose(svc *dynamodb.DynamoDB, item *types.ClosedPullRequest) (string, error) {
-	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
-
-	result, err := svc.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(strconv.Itoa(int(item.PullRequest.ID))),
-			},
-			"pullRequestId": {
-				N: aws.String(strconv.Itoa(int(item.Number))),
-			},
-		},
-	})
-
-	if err != nil {
-		return "", err
-	}
-	if result.Item == nil {
-		msg := "Could not find '" + strconv.Itoa(int(item.Number)) + "'"
-		return "", errors.New(msg)
-	}
-
-	var data types.TablePullRequestData
-	err = dynamodbattribute.UnmarshalMap(result.Item, &data)
-	if err != nil {
-		return "", err
-	}
-	return data.SlackTimeStamp, nil
-}
-
 func GetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error) {
 	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
 
@@ -122,16 +90,48 @@ func GetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error
 func DeleteItem(svc *dynamodb.DynamoDB, id int) error {
 	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
 
+	result, err := svc.Query(&dynamodb.QueryInput{
+		TableName: aws.String(tableName),
+		IndexName: aws.String("PullRequestIdIndex"),
+		KeyConditions: map[string]*dynamodb.Condition{
+			"pullRequestId": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dynamodb.AttributeValue{
+					{
+						N: aws.String(strconv.Itoa(id)),
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	var data []types.TablePullRequestData
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &data)
+	if err != nil {
+		return err
+	}
+
+	var idHash string
+	for _, item := range data {
+		idHash = item.ID
+	}
+
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(idHash),
+			},
 			"pullRequestId": {
 				N: aws.String(strconv.Itoa(id)),
 			},
 		},
 		TableName: aws.String(tableName),
 	}
-	_, err := svc.DeleteItem(input)
-	if err != nil {
+
+	if _, err := svc.DeleteItem(input); err != nil {
 		return err
 	}
 	return nil
