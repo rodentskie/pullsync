@@ -30,6 +30,7 @@ type ClosedPullRequest struct {
 	Action      string      `json:"action"`
 	Number      int         `json:"number"`
 	PullRequest pullRequest `json:"pull_request"`
+	Sender      sender      `json:"sender"`
 }
 
 type SubmitReviewPullRequest struct {

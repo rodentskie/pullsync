@@ -201,7 +201,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// closed PR
+	// closed / merged PR
 	if action == "closed" {
 		// parse request
 		var input types.ClosedPullRequest
@@ -223,13 +223,35 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-		err = slack.SlackSendMessageThreadClosed(timeStamp)
-		if err != nil {
-			zapLog.Error("error slack send message",
-				zap.Error(err),
-			)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
+
+		if timeStamp != "" {
+			if input.PullRequest.State == "closed" {
+				message := fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				message += fmt.Sprintf("View <%s|here>", input.Sender.Login)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
+			}
+
+			if input.PullRequest.State == "merged" {
+				message := fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				message += fmt.Sprintf("View <%s|here>", input.Sender.Login)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+
+			}
 		}
 	}
 
@@ -257,18 +279,36 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			message := fmt.Sprintf("<@%s> submitted a review comment. ", slackUsersMap[input.PullRequest.User.Login])
-			if len(input.Review.Body) > 0 {
-				message += fmt.Sprintf("```%s```\n", input.Review.Body)
+			if input.Review.State == "commented" {
+				message := fmt.Sprintf("<@%s> submitted a review comment. ", slackUsersMap[input.PullRequest.User.Login])
+				if len(input.Review.Body) > 0 {
+					message += fmt.Sprintf("```%s```\n", input.Review.Body)
+				}
+				message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
 			}
-			message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
-			err = slack.SlackSendMessageThread(timeStamp, message)
-			if err != nil {
-				zapLog.Error("error slack send message",
-					zap.Error(err),
-				)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-				return
+
+			if input.Review.State == "approved" {
+				message := fmt.Sprintf("<@%s> approved the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+				if len(input.Review.Body) > 0 {
+					message += fmt.Sprintf("```%s```\n", input.Review.Body)
+				}
+				message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
 			}
 		}
 	}

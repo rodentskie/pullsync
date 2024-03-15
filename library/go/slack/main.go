@@ -28,24 +28,6 @@ func SlackSendMessage(input types.OpenPullRequest) (string, error) {
 	return timestamp, nil
 }
 
-func SlackSendMessageThreadClosed(timeStamp string) error {
-	token := env.GetEnv("SLACK_TOKEN", "")
-	channel := env.GetEnv("SLACK_CHANNEL", "")
-	api := slack.New(token)
-
-	messageText := "PR is closed."
-
-	_, _, err := api.PostMessage(
-		channel,
-		slack.MsgOptionText(messageText, false),
-		slack.MsgOptionTS(timeStamp),
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func SlackSendMessageThread(timeStamp string, message string) error {
 	token := env.GetEnv("SLACK_TOKEN", "")
 	channel := env.GetEnv("SLACK_CHANNEL", "")

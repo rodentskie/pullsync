@@ -21,6 +21,11 @@ type pullRequest struct {
 	RequestedReviewers []pullRequestReviewers `json:"requested_reviewers"`
 }
 
+type sender struct {
+	Login string `json:"login"`
+	ID    int    `json:"id"`
+}
+
 type pullRequestRepository struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
@@ -45,4 +50,5 @@ type review struct {
 	HtmlUrl string          `json:"html_url"`
 	User    pullRequestUser `json:"user"`
 	Body    string          `json:"body"`
+	State   string          `json:"state"`
 }
