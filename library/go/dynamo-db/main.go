@@ -94,7 +94,7 @@ func GetSlackTimeStampIssue(svc *dynamodb.DynamoDB, item *types.CommentPullReque
 				ComparisonOperator: aws.String("EQ"),
 				AttributeValueList: []*dynamodb.AttributeValue{
 					{
-						N: aws.String("32"),
+						N: aws.String(strconv.Itoa(item.Issue.Number)),
 					},
 				},
 			},

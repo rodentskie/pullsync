@@ -8,7 +8,7 @@ config:
   infrastructure:lambdaFunctionName: slack_pr_lambda
   infrastructure:lambdaRoleName: slack_pr_lambda_role
   infrastructure:region: ap-southeast-2
-  infrastructure:slackChannel: pull-requests
+  infrastructure:slackChannel: dev-pull-requests
   infrastructure:slackToken:
     secure: v1:FVsHmvKE0vS8RVEy:zHfzslqMAoTRCljZgpT9a4Ohya3/J+VfAlyNY6eAdx6VD5gKSh03JU8a9+Od5FGOzBouHs21GwY+8bd2uQXkwlVdVVbSQIn5PpHtebFSZR6WlsOxL1PzE7vUClE=
   infrastructure:tableName: PullRequests

@@ -9,8 +9,8 @@ type Users struct {
 
 func SlackUsers() *Users {
 	return &Users{
-		PaulWaltersDev:     "U06Q5GKADME",
-		MeganSitoyPractera: "U06Q5GKADME",
-		Rodentskie:         "U06Q5GKADME",
+		PaulWaltersDev:     "U020E8T5PC5",
+		MeganSitoyPractera: "U04MFRK6350",
+		Rodentskie:         "U046JKYN3BQ",
 	}
 }
