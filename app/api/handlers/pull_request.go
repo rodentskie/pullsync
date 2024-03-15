@@ -231,23 +231,30 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			if input.PullRequest.State == "closed" {
-				var message string = fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
-				if len(input.PullRequest.MergedAt) > 0 {
-					message = fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
-				}
-
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
-					zapLog.Error("error slack send message",
-						zap.Error(err),
-					)
-					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-					return
-				}
-
+			var message string = fmt.Sprintf("<@%s> closed the pull request. ", slackUsersMap[input.PullRequest.User.Login])
+			if len(input.PullRequest.MergedAt) > 0 {
+				message = fmt.Sprintf("<@%s> merged the pull request. ", slackUsersMap[input.PullRequest.User.Login])
 			}
 
+			err := slack.SlackSendMessageThread(timeStamp, message)
+			if err != nil {
+				zapLog.Error("error slack send message",
+					zap.Error(err),
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			// Delete PR in dynamodb Table
+			svc := db.DynamoDbConnection()
+			err = db.DeleteItem(svc, input.Number)
+			if err != nil {
+				zapLog.Error("error delete data",
+					zap.Error(err),
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 
@@ -342,6 +349,63 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
+			}
+		}
+	}
+
+	// check run completed
+	if action == "completed" {
+		// parse request
+		var input types.CheckRunPullRequest
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			zapLog.Error("error unmarshal JSON",
+				zap.Error(err),
+			)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		svc := db.DynamoDbConnection()
+		var pullRequestId int
+
+		// should always only have one element
+		for _, e := range input.CheckRun.PullRequests {
+			pullRequestId = e.Number
+		}
+
+		timeStamp, err := db.GetSlackTimeStamp(svc, pullRequestId)
+		if err != nil {
+			zapLog.Error("error slack send message",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		if timeStamp != "" {
+			if input.CheckRun.Status == "completed" && len(input.CheckRun.CompletedAt) > 0 {
+				message := fmt.Sprintf("Check run <%s|%s> has completed.", input.CheckRun.HtmlUrl, input.CheckRun.Name)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
+
+			if input.CheckRun.Status == "failed" {
+				message := fmt.Sprintf("Check run <%s|%s> has failed.", input.CheckRun.HtmlUrl, input.CheckRun.Name)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
 			}
 		}
 	}

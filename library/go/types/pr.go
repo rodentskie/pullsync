@@ -53,3 +53,18 @@ type review struct {
 	Body    string          `json:"body"`
 	State   string          `json:"state"`
 }
+
+type checkRunPullRequest struct {
+	ID     int `json:"id"`
+	Number int `json:"number"`
+}
+
+type checkRun struct {
+	ID           int                   `json:"id"`
+	Name         string                `json:"name"`
+	HtmlUrl      string                `json:"html_url"`
+	Status       string                `json:"status"`
+	Conclusion   string                `json:"conclusion"`
+	CompletedAt  string                `json:"completed_at"`
+	PullRequests []checkRunPullRequest `json:"pull_requests"`
+}

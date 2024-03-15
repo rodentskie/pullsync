@@ -118,3 +118,21 @@ func GetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error
 
 	return timeStamp, nil
 }
+
+func DeleteItem(svc *dynamodb.DynamoDB, id int) error {
+	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
+
+	input := &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"pullRequestId": {
+				N: aws.String(strconv.Itoa(id)),
+			},
+		},
+		TableName: aws.String(tableName),
+	}
+	_, err := svc.DeleteItem(input)
+	if err != nil {
+		return err
+	}
+	return nil
+}

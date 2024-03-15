@@ -46,3 +46,10 @@ type PushPullRequestSync struct {
 	Repository  pullRequestRepository `json:"repository"`
 	After       string                `json:"after"`
 }
+
+type CheckRunPullRequest struct {
+	Action     string                `json:"action"`
+	Repository pullRequestRepository `json:"repository"`
+	Sender     sender                `json:"sender"`
+	CheckRun   checkRun              `json:"check_run"`
+}
