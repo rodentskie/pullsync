@@ -15,7 +15,11 @@ func LambdaFunction(ctx *pulumi.Context) error {
 	conf := config.New(ctx, "")
 	lambdaRoleName := conf.Require("lambdaRoleName")
 	lambdaFunctionName := conf.Require("lambdaFunctionName")
+	slackToken := conf.Require("slackToken")
+	slackChannel := conf.Require("slackChannel")
 	env := conf.Require("env")
+	dbEndpoint := conf.Require("dbEndpoint")
+	region := conf.Require("region")
 
 	// built zip file
 	fileName := "../bin/bootstrap.zip"
@@ -41,7 +45,11 @@ func LambdaFunction(ctx *pulumi.Context) error {
 		Runtime:        pulumi.String("provided.al2023"),
 		Environment: &lambda.FunctionEnvironmentArgs{
 			Variables: pulumi.StringMap{
-				"ENV": pulumi.String(env),
+				"ENV":           pulumi.String(env),
+				"SLACK_TOKEN":   pulumi.String(slackToken),
+				"SLACK_CHANNEL": pulumi.String(slackChannel),
+				"DB_ENDPOINT":   pulumi.String(dbEndpoint),
+				"REGION":        pulumi.String(region),
 			},
 		},
 		Tags: pulumi.StringMap{

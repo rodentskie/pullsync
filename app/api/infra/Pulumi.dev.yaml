@@ -1,13 +1,19 @@
 encryptionsalt: v1:cAPbxz5qq94=:v1:FoLbd7ETvxeBe6im:OrEs1FFO0KsQ536nwtkHcu28thRFGw==
 config:
   aws:region: ap-southeast-2
+  infrastructure:env: stage
+  infrastructure:lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  infrastructure:lambdaDynamoDBExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole
+  infrastructure:lambdaFunctionName: slack_pr_lambda
+  infrastructure:lambdaRoleName: slack_pr_lambda_role
+  infrastructure:region: ap-southeast-2
+  infrastructure:slackChannel: pull-requests
+  infrastructure:slackToken:
+    secure: v1:bhGmQAs13dDpJve3:Y27x8XbGv5XWshyVfHtjKH0UDJxEMXHPFgouSuN7FDeDuglYcM656Qfu04ErQBcXnk14eIITR+qqaAef0BNmP7GlqdWtddO1iw==
+  infrastructure:tableName: PullRequests
+  infrastructure:dbEndpoint: https://dynamodb.ap-southeast-2.amazonaws.com
+  infrastructure:tableNameIndex: PullRequestIdIndex
   pulumi:tags:
-    team: DevOps
     automated: "true"
+    team: DevOps
     tool: pulumi
-  lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  lambdaRoleName: slack_pr_lambda_role
-  lambdaFunctionName: slack_pr_lambda
-  env: stage
-  region: ap-southeast-2
-  accountId: 118169613081
