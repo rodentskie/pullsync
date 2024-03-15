@@ -10,7 +10,7 @@ config:
   infrastructure:region: ap-southeast-2
   infrastructure:slackChannel: dev-pull-requests
   infrastructure:slackToken:
-    secure: v1:FVsHmvKE0vS8RVEy:zHfzslqMAoTRCljZgpT9a4Ohya3/J+VfAlyNY6eAdx6VD5gKSh03JU8a9+Od5FGOzBouHs21GwY+8bd2uQXkwlVdVVbSQIn5PpHtebFSZR6WlsOxL1PzE7vUClE=
+    secure: v1:H90/rGOw9+nq02UM:hDeXJK0FRGBDm3uRRj4vWXFWR433+RUOimjSl5KVFeGb6+a8FR6uhAwkXQQdWiXiUluZVZTVpIR0R5PaX9jGFiiL+/PSQVj29A==
   infrastructure:tableName: PullRequests
   infrastructure:tableNameIndex: PullRequestIdIndex
   pulumi:tags:

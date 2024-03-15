@@ -2,16 +2,17 @@ package types
 
 type pullRequestUser struct {
 	Login string `json:"login"`
-	ID    int32  `json:"id"`
+	ID    int    `json:"id"`
 }
 
 type pullRequestReviewers struct {
 	Login string `json:"login"`
-	ID    int32  `json:"id"`
+	ID    int    `json:"id"`
 }
 
 type pullRequest struct {
-	ID                 int32                  `json:"id"`
+	ID                 int                    `json:"id"`
+	Number             int                    `json:"number"`
 	HtmlUrl            string                 `json:"html_url"`
 	State              string                 `json:"state"`
 	Locked             bool                   `json:"locked"`
@@ -21,7 +22,7 @@ type pullRequest struct {
 }
 
 type pullRequestRepository struct {
-	ID      int32  `json:"id"`
+	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	HtmlUrl string `json:"html_url"`
 }
@@ -33,7 +34,15 @@ type issue struct {
 }
 
 type comment struct {
-	ID      int32           `json:"id"`
+	ID      int             `json:"id"`
+	HtmlUrl string          `json:"html_url"`
+	Body    string          `json:"body"`
+	User    pullRequestUser `json:"user"`
+}
+
+type review struct {
+	ID      int             `json:"id"`
 	HtmlUrl string          `json:"html_url"`
 	User    pullRequestUser `json:"user"`
+	Body    string          `json:"body"`
 }
