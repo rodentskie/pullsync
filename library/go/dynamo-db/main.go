@@ -87,45 +87,16 @@ func GetSlackTimeStamp(svc *dynamodb.DynamoDB, pullRequestId int) (string, error
 	return timeStamp, nil
 }
 
-func DeleteItem(svc *dynamodb.DynamoDB, id int) error {
+func DeleteItem(svc *dynamodb.DynamoDB, id int, pullRequestId int) error {
 	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
-
-	result, err := svc.Query(&dynamodb.QueryInput{
-		TableName: aws.String(tableName),
-		IndexName: aws.String("PullRequestIdIndex"),
-		KeyConditions: map[string]*dynamodb.Condition{
-			"pullRequestId": {
-				ComparisonOperator: aws.String("EQ"),
-				AttributeValueList: []*dynamodb.AttributeValue{
-					{
-						N: aws.String(strconv.Itoa(id)),
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	var data []types.TablePullRequestData
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &data)
-	if err != nil {
-		return err
-	}
-
-	var idHash string
-	for _, item := range data {
-		idHash = item.ID
-	}
 
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
-				S: aws.String(idHash),
+				S: aws.String(strconv.Itoa(id)),
 			},
 			"pullRequestId": {
-				N: aws.String(strconv.Itoa(id)),
+				N: aws.String(strconv.Itoa(pullRequestId)),
 			},
 		},
 		TableName: aws.String(tableName),

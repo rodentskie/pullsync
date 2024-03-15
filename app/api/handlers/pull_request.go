@@ -247,7 +247,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Delete PR in dynamodb Table
 			svc := db.DynamoDbConnection()
-			err = db.DeleteItem(svc, input.Number)
+			err = db.DeleteItem(svc, input.PullRequest.ID, input.Number)
 			if err != nil {
 				zapLog.Error("error delete data",
 					zap.Error(err),

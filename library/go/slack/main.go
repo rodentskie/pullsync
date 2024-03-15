@@ -2,7 +2,9 @@ package slack
 
 import (
 	"fmt"
+	"slack-pr-lambda/constants"
 	"slack-pr-lambda/env"
+	"slack-pr-lambda/mapstruct"
 	"slack-pr-lambda/types"
 
 	"github.com/slack-go/slack"
@@ -13,7 +15,10 @@ func SlackSendMessage(input types.OpenPullRequest) (string, error) {
 	channel := env.GetEnv("SLACK_CHANNEL", "")
 	api := slack.New(token)
 
-	messageText := fmt.Sprintf("New <%s|pull request> in `%s`.", input.PullRequest.HtmlUrl, input.Repository.Name)
+	slackUsers := constants.SlackUsers()
+	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
+
+	messageText := fmt.Sprintf("<@%s> opened new <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], input.PullRequest.HtmlUrl, input.Repository.Name)
 
 	_, timestamp, err := api.PostMessage(
 		channel,
