@@ -54,15 +54,12 @@ func SlackSendMessageThreadReviewers(timeStamp string, reviewers []string) error
 	return nil
 }
 
-func SlackSendMessageThreadComment(timeStamp string, input *types.CommentPullRequest) error {
+func SlackSendMessageThreadClosed(timeStamp string) error {
 	token := env.GetEnv("SLACK_TOKEN", "")
 	channel := env.GetEnv("SLACK_CHANNEL", "")
 	api := slack.New(token)
 
-	slackUsers := constants.SlackUsers()
-	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
-
-	messageText := fmt.Sprintf("<@%s> had commented in the PR, click <%s|here>.", slackUsersMap[input.Comment.User.Login], input.Comment.HtmlUrl)
+	messageText := "PR is closed."
 
 	_, _, err := api.PostMessage(
 		channel,
@@ -75,16 +72,14 @@ func SlackSendMessageThreadComment(timeStamp string, input *types.CommentPullReq
 	return nil
 }
 
-func SlackSendMessageThreadClosed(timeStamp string) error {
+func SlackSendMessageThread(timeStamp string, message string) error {
 	token := env.GetEnv("SLACK_TOKEN", "")
 	channel := env.GetEnv("SLACK_CHANNEL", "")
 	api := slack.New(token)
 
-	messageText := "PR is closed."
-
 	_, _, err := api.PostMessage(
 		channel,
-		slack.MsgOptionText(messageText, false),
+		slack.MsgOptionText(message, false),
 		slack.MsgOptionTS(timeStamp),
 	)
 	if err != nil {
