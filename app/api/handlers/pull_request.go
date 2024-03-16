@@ -212,7 +212,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			message := fmt.Sprintf("<@%s> %s submitted an issue <%s|comment>.", slackUsersMap[input.Comment.User.Login], emoji.Comment, input.Comment.HtmlUrl)
+			message := fmt.Sprintf("<@%s> %s submitted an issue <%s|comment>. \n", slackUsersMap[input.Comment.User.Login], emoji.Comment, input.Comment.HtmlUrl)
 			message += fmt.Sprintf("```%s```\n", input.Comment.Body)
 			err = slack.SlackSendMessageThread(timeStamp, message)
 			if err != nil {
@@ -311,7 +311,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			if input.Review.State == "commented" {
-				message := fmt.Sprintf("<@%s> submitted a review <%s|comment> %s. ", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Reviewed)
+				message := fmt.Sprintf("<@%s> submitted a review <%s|comment> %s. \n ", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Reviewed)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
@@ -326,7 +326,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if input.Review.State == "approved" {
-				message := fmt.Sprintf("<@%s> approved the pull <%s|request> %s. ", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Approved)
+				message := fmt.Sprintf("<@%s> approved the pull <%s|request> %s. \n", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Approved)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
