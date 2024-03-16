@@ -59,6 +59,12 @@ type checkRunPullRequest struct {
 	Number int `json:"number"`
 }
 
+type checkSuite struct {
+	ID         int    `json:"id"`
+	Status     string `json:"status"`
+	Conclusion string `json:"conclusion"`
+}
+
 type checkRun struct {
 	ID           int                   `json:"id"`
 	Name         string                `json:"name"`
@@ -67,4 +73,5 @@ type checkRun struct {
 	Conclusion   string                `json:"conclusion"`
 	CompletedAt  string                `json:"completed_at"`
 	PullRequests []checkRunPullRequest `json:"pull_requests"`
+	CheckSuite   checkSuite            `json:"check_suite"`
 }

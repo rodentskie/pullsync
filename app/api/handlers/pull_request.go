@@ -439,6 +439,29 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+			if input.CheckRun.CheckSuite.Status == "completed" && input.CheckRun.CheckSuite.Conclusion == "success" {
+				message := fmt.Sprintf("All checks have passed. %s", emoji.CheckPassed)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
+
+			if input.CheckRun.CheckSuite.Status == "completed" && input.CheckRun.CheckSuite.Conclusion == "failure" {
+				message := fmt.Sprintf("Some checks were not successful. %s", emoji.CheckFailed)
+				err := slack.SlackSendMessageThread(timeStamp, message)
+				if err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
 		}
 	}
 
