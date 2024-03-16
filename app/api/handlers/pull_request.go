@@ -212,9 +212,8 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if timeStamp != "" {
-			message := fmt.Sprintf("<@%s> %s submitted an issue comment.", slackUsersMap[input.Comment.User.Login], emoji.Comment)
+			message := fmt.Sprintf("<@%s> %s submitted an issue <%s|comment>.", slackUsersMap[input.Comment.User.Login], emoji.Comment, input.Comment.HtmlUrl)
 			message += fmt.Sprintf("```%s```\n", input.Comment.Body)
-			message += fmt.Sprintf("View <%s|here>", input.Comment.HtmlUrl)
 			err = slack.SlackSendMessageThread(timeStamp, message)
 			if err != nil {
 				zapLog.Error("error slack send message",
@@ -312,11 +311,10 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			if input.Review.State == "commented" {
-				message := fmt.Sprintf("<@%s> submitted a review comment %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Reviewed)
+				message := fmt.Sprintf("<@%s> submitted a review <%s|comment> %s. ", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Reviewed)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
-				message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
 				err := slack.SlackSendMessageThread(timeStamp, message)
 				if err != nil {
 					zapLog.Error("error slack send message",
@@ -328,7 +326,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if input.Review.State == "approved" {
-				message := fmt.Sprintf("<@%s> approved the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Approved)
+				message := fmt.Sprintf("<@%s> approved the pull <%s|request> %s. ", slackUsersMap[input.PullRequest.User.Login], input.Review.HtmlUrl, emoji.Approved)
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
@@ -341,7 +339,6 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				message += fmt.Sprintf("View <%s|here>", input.Review.HtmlUrl)
 				err := slack.SlackSendMessageThread(timeStamp, message)
 				if err != nil {
 					zapLog.Error("error slack send message",
@@ -379,7 +376,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			commitLink := fmt.Sprintf("%s/commits/%s", input.PullRequest.HtmlUrl, input.After)
-			message := fmt.Sprintf("<@%s> %s pushed a change. See it <%s|here>.", slackUsersMap[input.PullRequest.User.Login], emoji.Pushed, commitLink)
+			message := fmt.Sprintf("<@%s> %s pushed a <%s|change>.", slackUsersMap[input.PullRequest.User.Login], emoji.Pushed, commitLink)
 			err = slack.SlackSendMessageThread(timeStamp, message)
 			if err != nil {
 				zapLog.Error("error slack send message",
