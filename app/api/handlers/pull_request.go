@@ -15,6 +15,7 @@ import (
 	"slack-pr-lambda/mapstruct"
 	"slack-pr-lambda/slack"
 	"slack-pr-lambda/types"
+	"strings"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -113,7 +114,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if err := slack.SlackAddReaction(timeStamp, emoji.Opened); err != nil {
+		if err := slack.SlackAddReaction(timeStamp, strings.ReplaceAll(emoji.Opened, ":", "")); err != nil {
 			zapLog.Error("error slack add reaction",
 				zap.Error(err),
 			)
@@ -256,7 +257,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				message = fmt.Sprintf("<@%s> merged the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Merged)
 			}
 
-			if err := slack.SlackAddReaction(timeStamp, closeEmoji); err != nil {
+			if err := slack.SlackAddReaction(timeStamp, strings.ReplaceAll(closeEmoji, ":", "")); err != nil {
 				zapLog.Error("error slack add reaction",
 					zap.Error(err),
 				)
@@ -332,7 +333,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
 
-				if err := slack.SlackAddReaction(timeStamp, emoji.Approved); err != nil {
+				if err := slack.SlackAddReaction(timeStamp, strings.ReplaceAll(emoji.Approved, ":", "")); err != nil {
 					zapLog.Error("error slack add reaction",
 						zap.Error(err),
 					)
