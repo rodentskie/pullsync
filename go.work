@@ -2,7 +2,6 @@ go 1.22.1
 
 use (
 	./app/api
-	./app/api.lambda
 	./library/go/constants
 	./library/go/dynamo-db
 	./library/go/env
