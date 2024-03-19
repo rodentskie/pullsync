@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22.1'
+          cache-dependency-path: go.work.sum
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
@@ -74,6 +75,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22.1'
+          cache-dependency-path: go.work.sum
       - name: Cache dependencies
         uses: actions/cache@v3
         id: cache-npm
