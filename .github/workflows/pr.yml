@@ -54,7 +54,7 @@ jobs:
           bash tools/scripts/print-affected.sh
       - name: Download go mod packages
         run: |
-          bash tools/scripts/print-affected.sh
+          bash tools/scripts/affected.sh
         env:
           TARGET: download
 
