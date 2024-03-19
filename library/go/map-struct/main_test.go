@@ -58,7 +58,7 @@ func TestStructToMap(t *testing.T) {
 		Email: "john@example.com",
 	}
 
-	result := StructToMapInterface(sample)
+	result := StructToMap(sample)
 
 	expected := map[string]interface{}{
 		"id":    1,

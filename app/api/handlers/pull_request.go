@@ -28,7 +28,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	zapLog, _ := l.Build()
 
 	slackUsers := constants.SlackUsers()
-	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
+	slackUsersMap := mapstruct.StructToMap(*slackUsers)
 
 	emoji := constants.Emoji()
 
