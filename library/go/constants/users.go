@@ -18,7 +18,7 @@ func SlackUsers() *Users {
 	return &Users{
 		PaulWaltersDev:     "U020E8T5PC5",
 		MeganSitoyPractera: "U04MFRK6350",
-		Rodentskie:         "U06Q5GKADME",
+		Rodentskie:         "U046JKYN3BQ",
 		Rodentskiie:        "U06Q7E7QFNX",
 		Trtshen:            "U1GBY5XKJ",
 		TerenceCoder:       "U1GJ48N5V",
