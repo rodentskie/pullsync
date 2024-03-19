@@ -53,12 +53,6 @@ jobs:
       - name: Show affected apps
         run: |
           bash tools/scripts/print-affected.sh
-      - name: Download go mod packages
-        run: |
-          echo "$GOPATH"
-          bash tools/scripts/affected.sh
-        env:
-          TARGET: download
 
   lint:
     needs: target
