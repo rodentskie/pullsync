@@ -53,6 +53,7 @@ jobs:
       - name: Show affected apps
         run: |
           bash tools/scripts/print-affected.sh
+      - run: npm run test
 
   lint:
     needs: target

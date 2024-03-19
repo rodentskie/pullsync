@@ -2,7 +2,9 @@
   "name": "@slack-pr-lambda/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "test": "pnpm nx run-many -t test --parallel=5"
+  },
   "private": true,
   "devDependencies": {
     "@nx-go/nx-go": "3.0.0-beta.0",
