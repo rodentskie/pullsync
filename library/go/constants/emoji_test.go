@@ -9,6 +9,7 @@ func TestEmoji(t *testing.T) {
 	expected := &Emojis{
 		CheckPassed:      ":check-passed:",
 		CheckFailed:      ":check-failed:",
+		CheckCanceled:    ":octagonal_sign:",
 		Approved:         ":approved:",
 		Closed:           ":closed:",
 		Merged:           ":merged:",
