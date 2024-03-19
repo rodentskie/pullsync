@@ -104,8 +104,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			for _, user := range reviewers {
 				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
-			err = slack.SlackSendMessageThread(timeStamp, slackMention)
-			if err != nil {
+			if err = slack.SlackSendMessageThread(timeStamp, slackMention); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
@@ -168,8 +167,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			for _, user := range reviewers {
 				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
-			err = slack.SlackSendMessageThread(timeStamp, slackMention)
-			if err != nil {
+			if err = slack.SlackSendMessageThread(timeStamp, slackMention); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
@@ -214,8 +212,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		if timeStamp != "" {
 			message := fmt.Sprintf("<@%s> %s submitted an issue <%s|comment>. \n", slackUsersMap[input.Comment.User.Login], emoji.Comment, input.Comment.HtmlUrl)
 			message += fmt.Sprintf("```%s```\n", input.Comment.Body)
-			err = slack.SlackSendMessageThread(timeStamp, message)
-			if err != nil {
+			if err = slack.SlackSendMessageThread(timeStamp, message); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
@@ -263,9 +260,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
-
-			err := slack.SlackSendMessageThread(timeStamp, message)
-			if err != nil {
+			if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
@@ -315,8 +310,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				if len(input.Review.Body) > 0 {
 					message += fmt.Sprintf("```%s```\n", input.Review.Body)
 				}
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 					zapLog.Error("error slack send message",
 						zap.Error(err),
 					)
@@ -338,9 +332,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
-
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 					zapLog.Error("error slack send message",
 						zap.Error(err),
 					)
@@ -377,8 +369,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 		if timeStamp != "" {
 			commitLink := fmt.Sprintf("%s/commits/%s", input.PullRequest.HtmlUrl, input.After)
 			message := fmt.Sprintf("<@%s> %s pushed a <%s|change>.", slackUsersMap[input.PullRequest.User.Login], emoji.Pushed, commitLink)
-			err = slack.SlackSendMessageThread(timeStamp, message)
-			if err != nil {
+			if err = slack.SlackSendMessageThread(timeStamp, message); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
@@ -426,8 +417,12 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 				if input.CheckRun.Conclusion == "failure" {
 					message = fmt.Sprintf("Check run <%s|%s> %s.", input.CheckRun.HtmlUrl, input.CheckRun.Name, emoji.CheckFailed)
 				}
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
+
+				if input.CheckRun.Conclusion == "cancelled" {
+					message = fmt.Sprintf("Check run <%s|%s> %s.", input.CheckRun.HtmlUrl, input.CheckRun.Name, emoji.CheckCanceled)
+				}
+
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 					zapLog.Error("error slack send message",
 						zap.Error(err),
 					)
@@ -438,8 +433,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if input.CheckRun.CheckSuite.Status == "completed" && input.CheckRun.CheckSuite.Conclusion == "success" {
 				message := fmt.Sprintf("All checks have passed. %s", emoji.CheckPassed)
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 					zapLog.Error("error slack send message",
 						zap.Error(err),
 					)
@@ -450,8 +444,18 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 			if input.CheckRun.CheckSuite.Status == "completed" && input.CheckRun.CheckSuite.Conclusion == "failure" {
 				message := fmt.Sprintf("Some checks were not successful. %s", emoji.CheckFailed)
-				err := slack.SlackSendMessageThread(timeStamp, message)
-				if err != nil {
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
+
+			if input.CheckRun.CheckSuite.Status == "completed" && input.CheckRun.CheckSuite.Conclusion == "cancelled" {
+				message := fmt.Sprintf("Some checks were cancelled. %s", emoji.CheckCanceled)
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
 					zapLog.Error("error slack send message",
 						zap.Error(err),
 					)
@@ -495,8 +499,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			for _, user := range reviewers {
 				slackMention += fmt.Sprintf("<@%s> %s", slackUsersMap[user], emoji.RequestReview)
 			}
-			err = slack.SlackSendMessageThread(timeStamp, slackMention)
-			if err != nil {
+			if err = slack.SlackSendMessageThread(timeStamp, slackMention); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
 				)
