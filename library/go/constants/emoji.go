@@ -4,6 +4,7 @@ package constants
 type Emojis struct {
 	CheckPassed      string
 	CheckFailed      string
+	CheckCanceled    string
 	Approved         string
 	Closed           string
 	Merged           string
@@ -20,6 +21,7 @@ func Emoji() *Emojis {
 	return &Emojis{
 		CheckPassed:      ":check-passed:",
 		CheckFailed:      ":check-failed:",
+		CheckCanceled:    ":octagonal_sign:",
 		Approved:         ":approved:",
 		Closed:           ":closed:",
 		Merged:           ":merged:",
