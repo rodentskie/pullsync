@@ -61,7 +61,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
 
   lint:
     needs: target
@@ -100,7 +100,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
       - name: Lint
         run: bash tools/scripts/affected.sh
 
@@ -141,6 +141,6 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
       - name: Test
         run: bash tools/scripts/affected.sh
