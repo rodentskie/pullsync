@@ -138,5 +138,9 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
       - name: Test
         run: bash tools/scripts/affected.sh
