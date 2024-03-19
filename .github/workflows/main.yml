@@ -1,0 +1,196 @@
+# ---
+# name: 'main'
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   target:
+#     runs-on: ubuntu-latest
+#     env:
+#       BASE_REF: main~1
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '16.15.0'
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: npm-
+#       - name: Install prerequisite npm global packages
+#         run: npm install -g nx@14.1.9
+#       - run: npm ci
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./node_modules
+#           key: npm-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - name: Show affected apps
+#         run: |
+#           bash tools/scripts/print-affected.sh
+#       - name: Output check if api.main is affected
+#         id: check_api_main
+#         run: |
+#           main() {
+#             if [ "$(tools/scripts/print-affected.sh | grep app-api.main | xargs)" = "app-api.main" ]; then
+#               echo "yes"
+#             else
+#               echo "no"
+#             fi
+#           }
+
+#           RESULT=$(main)
+#           echo "MAIN=$RESULT" >> $GITHUB_OUTPUT
+#     outputs:
+#       MAIN: ${{ steps.check_api_main.outputs.MAIN  }}
+
+#   lint:
+#     needs: target
+#     runs-on: ubuntu-latest
+#     env:
+#       BASE_REF: main~1
+#       TARGET: lint
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '16.15.0'
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: npm-
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./node_modules
+#           key: npm-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - name: Install prerequisite npm global packages
+#         run: npm install -g nx@14.1.9
+#       - name: Run Lint on affected apps
+#         run: |
+#           bash tools/scripts/affected.sh
+
+#   test:
+#     needs: target
+#     runs-on: ubuntu-latest
+#     env:
+#       BASE_REF: main~1
+#       TARGET: test
+#       NODE_ENV: 'test'
+#     services:
+#       mongo:
+#         image: mongo:4.4.4-bionic
+#         ports:
+#           - 27017:27017
+#       rabbitmq:
+#         image: rabbitmq:3-management-alpine
+#         ports:
+#           - 5672:5672
+#           - 15672:15672
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '16.15.0'
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: npm-
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./node_modules
+#           key: npm-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - name: Install prerequisite npm global packages
+#         run: npm install -g nx@14.1.9
+#       - name: Test
+#         run: bash tools/scripts/affected.sh
+
+#   build:
+#     needs:
+#       - lint
+#       - test
+#     runs-on: ubuntu-latest
+#     env:
+#       BASE_REF: main~1
+#       TARGET: build
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '16.15.0'
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: npm-
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./node_modules
+#           key: npm-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - name: Install prerequisite npm global packages
+#         run: npm install -g nx@14.1.9
+#       - name: BUILD
+#         run: |
+#           bash tools/scripts/affected.sh
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./dist
+#           key: dist-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+
+#   test-api-main:
+#     needs:
+#       - build
+#     runs-on: ubuntu-latest
+#     if: needs.target.outputs.MAIN == 'yes'
+#     env:
+#       BASE_REF: main~1
+#       TARGET: test
+#       NODE_ENV: 'test'
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '16.15.0'
+#       - name: Cache dependencies
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.npm
+#           key: npm-${{ hashFiles('package-lock.json') }}
+#           restore-keys: npm-
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./node_modules
+#           key: npm-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - uses: actions/cache@v3
+#         with:
+#           path: ./dist
+#           key: dist-${{ github.sha }}-${{ github.ref }}-x9dkg6sp
+#       - name: Install prerequisite npm global packages
+#         run: npm install -g nx@14.1.9
+#       - name: Build Projects and Build Docker Images
+#         run: npm run build:docker
+#       - name: Local Kind Setup
+#         run: bash kind/setup.sh load
+#       - name: Test API Main
+#         run: |
+#           sleep 10
+#           nx run app-api.main:test

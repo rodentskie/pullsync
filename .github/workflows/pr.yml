@@ -1,0 +1,116 @@
+---
+name: pull-request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  target:
+    permissions: write-all
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.base_ref }}
+    steps:
+      - name: Get branch for env BRANCH_TAG_NAME
+        run: echo "BRANCH_TAG_NAME="$(echo "$GITHUB_HEAD_REF") >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH_TAG_NAME }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.19.0'
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Show affected apps
+        run: |
+          bash tools/scripts/print-affected.sh
+
+  lint:
+    needs: target
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: ${{ github.base_ref }}
+      TARGET: lint
+    steps:
+      - name: Get branch for env BRANCH_TAG_NAME
+        run: echo "BRANCH_TAG_NAME="$(echo "$GITHUB_HEAD_REF") >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH_TAG_NAME }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.19.0'
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: cache-npm
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Lint
+        run: bash tools/scripts/affected.sh
+
+  test:
+    needs: target
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: ${{ github.base_ref }}
+      TARGET: test
+      EXCLUDE: cybersec.app,cybersec.app-e2e
+    steps:
+      - name: Get branch for env BRANCH_TAG_NAME
+        run: echo "BRANCH_TAG_NAME="$(echo "$GITHUB_HEAD_REF") >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH_TAG_NAME }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.19.0'
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Test
+        run: bash tools/scripts/affected.sh

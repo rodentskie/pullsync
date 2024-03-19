@@ -11,6 +11,7 @@ type Users struct {
 	Shawnm0705         string `json:"shawnm0705"`
 	Sasangachathumal   string `json:"sasangachathumal"`
 	Sunilsbcloud       string `json:"Sunilsbcloud"`
+	Rodentskiie        string `json:"rodentskiie"`
 }
 
 func SlackUsers() *Users {
@@ -18,6 +19,7 @@ func SlackUsers() *Users {
 		PaulWaltersDev:     "U020E8T5PC5",
 		MeganSitoyPractera: "U04MFRK6350",
 		Rodentskie:         "U06Q5GKADME",
+		Rodentskiie:        "U06Q7E7QFNX",
 		Trtshen:            "U1GBY5XKJ",
 		TerenceCoder:       "U1GJ48N5V",
 		Jazzmind:           "U02TB2WV7",
