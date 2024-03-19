@@ -60,8 +60,8 @@ jobs:
           TARGET: download
       - uses: actions/cache@v3
         with:
-          path: ${{ env.GOPATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/go.work.sum') }}
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
 
   lint:
     needs: target
@@ -97,6 +97,10 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-pkg-${{ hashFiles('**/go.work.sum') }}
       - name: Lint
         run: bash tools/scripts/affected.sh
 
