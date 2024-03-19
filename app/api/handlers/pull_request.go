@@ -368,7 +368,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			commitLink := fmt.Sprintf("%s/commits/%s", input.PullRequest.HtmlUrl, input.After)
-			message := fmt.Sprintf("<@%s> %s pushed a <%s|change>.", slackUsersMap[input.PullRequest.User.Login], emoji.Pushed, commitLink)
+			message := fmt.Sprintf("<@%s> %s pushed a <%s|change>.", slackUsersMap[input.Sender.Login], emoji.Pushed, commitLink)
 			if err = slack.SlackSendMessageThread(timeStamp, message); err != nil {
 				zapLog.Error("error slack send message",
 					zap.Error(err),
