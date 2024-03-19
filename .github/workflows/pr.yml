@@ -26,7 +26,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22.1'
-          check-latest: true
           cache-dependency-path: go.work.sum
       - uses: pnpm/action-setup@v3
         name: Install pnpm
@@ -37,7 +36,7 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
@@ -46,7 +45,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
@@ -59,11 +58,10 @@ jobs:
           bash tools/scripts/affected.sh
         env:
           TARGET: download
-      - uses: actions/setup-go@v5
+      - uses: actions/cache@v4
         with:
-          go-version: '^1.22.1'
-          check-latest: true
-          cache-dependency-path: go.work.sum
+          path: ~/go/pkg/mod
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
 
   lint:
     needs: target
@@ -87,19 +85,22 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22.1'
-          check-latest: true
           cache-dependency-path: go.work.sum
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-npm
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
       - name: Lint
         run: bash tools/scripts/affected.sh
 
@@ -126,17 +127,20 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22.1'
-          check-latest: true
           cache-dependency-path: go.work.sum
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: go-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-${{ hashFiles('**/go.work.sum') }}
       - name: Test
         run: bash tools/scripts/affected.sh
