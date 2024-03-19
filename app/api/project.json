@@ -73,6 +73,20 @@
         "cwd": "{projectRoot}/infra",
         "command": "pulumi up -y"
       }
+    },
+    "infra.secret": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi config set --secret {args.key} {args.value}"
+      }
+    },
+    "infra.plaintext": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi config set --plaintext {args.key} {args.value}"
+      }
     }
   }
 }
