@@ -52,6 +52,11 @@ jobs:
       - name: Show affected apps
         run: |
           bash tools/scripts/print-affected.sh
+      - name: Download go mod packages
+        run: |
+          bash tools/scripts/print-affected.sh
+        env:
+          TARGET: download
 
   lint:
     needs: target
@@ -89,8 +94,6 @@ jobs:
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       - name: Lint
         run: bash tools/scripts/affected.sh
-      - name: Lint
-        run: bash tools/scripts/affected.sh
 
   test:
     needs: target
@@ -126,7 +129,5 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
-      - name: Test
-        run: bash tools/scripts/affected.sh
       - name: Test
         run: bash tools/scripts/affected.sh
