@@ -53,7 +53,6 @@ jobs:
       - name: Show affected apps
         run: |
           bash tools/scripts/print-affected.sh
-      - run: npm run test
 
   lint:
     needs: target
@@ -140,3 +139,6 @@ jobs:
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       - name: Test
         run: bash tools/scripts/affected.sh
+      - name: Test api
+        run: go test -v -cover ./...
+        working-directory: ./app/api
