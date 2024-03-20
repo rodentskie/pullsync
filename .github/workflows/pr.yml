@@ -139,3 +139,5 @@ jobs:
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       - name: Test
         run: bash tools/scripts/affected.sh
+        env:
+          GORACE: atexit_sleep_ms=0
