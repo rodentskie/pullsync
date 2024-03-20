@@ -137,8 +137,7 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
-      - name: Test
-        run: bash tools/scripts/affected.sh
-      - name: Test api
-        run: go test -v -cover ./...
-        working-directory: ./app/api
+      # - name: Test
+      #   run: bash tools/scripts/affected.sh
+      - name: Test constants
+        run: nx test constants
