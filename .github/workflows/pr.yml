@@ -141,3 +141,6 @@ jobs:
       #   run: bash tools/scripts/affected.sh
       - name: Test
         run: pnpm nx test api
+      - name: Test api
+        run: go test -v ./... -cover -race
+        working-directory: ./app/api
