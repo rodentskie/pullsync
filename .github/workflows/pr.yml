@@ -20,14 +20,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH_TAG_NAME }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.19.0'
       - uses: actions/setup-go@v5
         with:
-          go-version: '^1.22.1'
-          cache-dependency-path: go.work.sum
-      - uses: pnpm/action-setup@v2
+          check-latest: true
+          go-version: '^1.22'
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
         name: Install pnpm
         with:
           version: 8
@@ -36,7 +37,7 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
@@ -45,7 +46,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
@@ -69,21 +70,27 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH_TAG_NAME }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.19.0'
       - uses: actions/setup-go@v5
         with:
-          go-version: '^1.22.1'
-          cache-dependency-path: go.work.sum
+          check-latest: true
+          go-version: '^1.22'
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-npm
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
@@ -107,18 +114,30 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ env.BRANCH_TAG_NAME }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.19.0'
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: '^1.22'
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
           restore-keys: npm-
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       - name: Test
         run: bash tools/scripts/affected.sh
+        env:
+          GORACE: atexit_sleep_ms=0

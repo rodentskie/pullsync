@@ -11,6 +11,7 @@ type OpenPullRequest struct {
 	Number      int                   `json:"number"`
 	PullRequest pullRequest           `json:"pull_request"`
 	Repository  pullRequestRepository `json:"repository"`
+	Sender      sender                `json:"sender"`
 }
 
 type ReviewRequestPullRequest struct {

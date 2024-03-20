@@ -28,7 +28,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	zapLog, _ := l.Build()
 
 	slackUsers := constants.SlackUsers()
-	slackUsersMap := mapstruct.StructToMapInterface(*slackUsers)
+	slackUsersMap := mapstruct.StructToMap(*slackUsers)
 
 	emoji := constants.Emoji()
 
@@ -85,7 +85,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-		messageText := fmt.Sprintf("<@%s> %s opened new <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
+		messageText := fmt.Sprintf("<@%s> %s opened new <%s|pull request> in `%s`.", slackUsersMap[input.Sender.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
 		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {
 			zapLog.Error("error slack send message",
@@ -247,10 +247,10 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		if timeStamp != "" {
 			closeEmoji := emoji.Closed
-			message := fmt.Sprintf("<@%s> closed the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Closed)
+			message := fmt.Sprintf("<@%s> closed the pull request %s. ", slackUsersMap[input.Sender.Login], emoji.Closed)
 			if len(input.PullRequest.MergedAt) > 0 {
 				closeEmoji = emoji.Merged
-				message = fmt.Sprintf("<@%s> merged the pull request %s. ", slackUsersMap[input.PullRequest.User.Login], emoji.Merged)
+				message = fmt.Sprintf("<@%s> merged the pull request %s. ", slackUsersMap[input.Sender.Login], emoji.Merged)
 			}
 
 			if err := slack.SlackAddReaction(timeStamp, strings.ReplaceAll(closeEmoji, ":", "")); err != nil {
@@ -479,7 +479,7 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		messageText := fmt.Sprintf("<@%s> %s Reopened <%s|pull request> in `%s`.", slackUsersMap[input.PullRequest.User.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
+		messageText := fmt.Sprintf("<@%s> %s Reopened <%s|pull request> in `%s`.", slackUsersMap[input.Sender.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
 
 		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {

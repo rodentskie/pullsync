@@ -24,6 +24,13 @@
         "cwd": "{projectRoot}",
         "command": "go mod tidy"
       }
+    },
+    "download": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "go mod download"
+      }
     }
   }
 }

@@ -31,11 +31,11 @@
         "command": "go mod tidy"
       }
     },
-    "get": {
+    "download": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}",
-        "command": "go get"
+        "command": "go mod download"
       }
     },
     "install": {

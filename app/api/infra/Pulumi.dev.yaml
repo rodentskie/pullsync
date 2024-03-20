@@ -11,9 +11,9 @@ config:
   infrastructure:lambdaFunctionName: slack_pr_lambda
   infrastructure:lambdaRoleName: slack_pr_lambda_role
   infrastructure:region: ap-southeast-2
-  infrastructure:slackChannel: C06PPPNBCQK
+  infrastructure:slackChannel: C06Q1FDPTUZ
   infrastructure:slackToken:
-    secure: v1:OxGbDXvp3SK2aSQy:pf0qhaBXwReURxeEwrllTH29q/FwVKeGppkOsWai7e2fQCySJqZNt1WaUNHxcrBCXXbgxHSUdmAyUJ+UVZTg4tFNlQWFDBcKzw==
+    secure: v1:LdaGPrk8RS/4pJRS:sLVLLo12yKx8QS/6q9HJXHPVNPhn90VYvnwHn7Uif3OZuLn9CJiSq19UXo7JC6GjK4MtaCpG0K2zosOGJdbjJCo3HmeuNA==
   infrastructure:tableName: PullRequests
   infrastructure:tableNameIndex: PullRequestIdIndex
   pulumi:tags:
