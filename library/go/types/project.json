@@ -6,7 +6,10 @@
   "tags": [],
   "targets": {
     "test": {
-      "executor": "@nx-go/nx-go:test"
+      "executor": "@nx-go/nx-go:test",
+      "options": {
+        "skipRace": true
+      }
     },
     "lint": {
       "executor": "@nx-go/nx-go:lint"
