@@ -140,4 +140,4 @@ jobs:
       # - name: Test
       #   run: bash tools/scripts/affected.sh
       - name: Test constants
-        run: nx test constants
+        run: pnpm nx test constants
