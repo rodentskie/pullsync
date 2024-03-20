@@ -25,7 +25,7 @@ services:
     working_dir: /home/dynamodblocal
     volumes:
       - ./app/api/infra/dynamodb:/home/dynamodblocal
-    command: dynamodb create-table --cli-input-json file://table.json --endpoint-url http://dynamodb-local:8000
+    entrypoint: ./create-table.sh
     environment:
       AWS_ACCESS_KEY_ID: local
       AWS_SECRET_ACCESS_KEY: local

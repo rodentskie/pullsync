@@ -8,6 +8,7 @@ use (
 	./library/go/github
 	./library/go/logger
 	./library/go/map-struct
+	./library/go/pulumi-mock
 	./library/go/slack
 	./library/go/types
 )
