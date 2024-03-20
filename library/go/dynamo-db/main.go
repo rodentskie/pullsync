@@ -103,3 +103,58 @@ func DeleteItem(svc *dynamodb.DynamoDB, id int, pullRequestId int) error {
 	}
 	return nil
 }
+
+func DeleteAllItem(svc *dynamodb.DynamoDB) error {
+	tableName := env.GetEnv("TABLE_NAME", "PullRequests")
+
+	input := &dynamodb.ScanInput{
+		TableName: aws.String(tableName),
+	}
+
+	var items []map[string]*dynamodb.AttributeValue
+	err := svc.ScanPages(input, func(output *dynamodb.ScanOutput, lastPage bool) bool {
+		items = append(items, output.Items...)
+		return !lastPage
+	})
+	if err != nil {
+		return err
+	}
+
+	batchSize := int64(25)
+	for i := int64(0); i < int64(len(items)); i += batchSize {
+		upper := i + batchSize
+		if upper > int64(len(items)) {
+			upper = int64(len(items))
+		}
+
+		batchItems := items[i:upper]
+		writeRequests := make([]*dynamodb.WriteRequest, len(batchItems))
+
+		for j, item := range batchItems {
+			hashKey := item["id"]
+			rangeKey := item["pullRequestId"]
+
+			writeRequests[j] = &dynamodb.WriteRequest{
+				DeleteRequest: &dynamodb.DeleteRequest{
+					Key: map[string]*dynamodb.AttributeValue{
+						"id":            hashKey,
+						"pullRequestId": rangeKey,
+					},
+				},
+			}
+		}
+
+		input := &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]*dynamodb.WriteRequest{
+				tableName: writeRequests,
+			},
+		}
+
+		_, err = svc.BatchWriteItem(input)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

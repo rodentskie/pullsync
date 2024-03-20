@@ -20,7 +20,7 @@ services:
       - dynamodb-local
 
   dynamodb-migrator:
-    image: banst/awscli:1.18.76
+    image: amazon/aws-cli
     container_name: dynamodb-migrator
     working_dir: /home/dynamodblocal
     volumes:
