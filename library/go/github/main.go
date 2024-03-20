@@ -9,8 +9,8 @@ import (
 )
 
 func GetPullRequestId(repo string, prNumber int) (int64, error) {
-	token := env.GetEnv("GITHUB_TOKEN", "far")
-	owner := env.GetEnv("GITHUB_OWNER", "boo")
+	token := env.GetEnv("GITHUB_TOKEN", "token")
+	owner := env.GetEnv("GITHUB_OWNER", "owner")
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
