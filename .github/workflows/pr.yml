@@ -139,5 +139,5 @@ jobs:
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       # - name: Test
       #   run: bash tools/scripts/affected.sh
-      - name: Test constants
-        run: pnpm nx test constants
+      - name: Test
+        run: pnpm nx test api
