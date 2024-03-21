@@ -5,7 +5,6 @@
     "production": ["default"],
     "sharedGlobals": ["{workspaceRoot}/go.work"]
   },
-  "nxCloudAccessToken": "MDhjMTY2YjktMGU0OS00MzY0LTljZjUtNDcwMDc4ZWJjMzY2fHJlYWQtd3JpdGU=",
   "plugins": ["@nx-go/nx-go"],
   "neverConnectToCloud": true
 }
