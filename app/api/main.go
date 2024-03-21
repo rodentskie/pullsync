@@ -12,11 +12,10 @@ import (
 	"slack-pr-lambda/logger"
 	"syscall"
 
-	"go.uber.org/zap"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
+	"go.uber.org/zap"
 )
 
 var httpLambda *httpadapter.HandlerAdapter

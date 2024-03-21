@@ -14,21 +14,6 @@
 
 ## Affected Components
 
-- [ ] Accounts
-- [ ] API Main
-- [ ] APP Main
-- [ ] Eventstore
-- [ ] Employees
-- [ ] Department
-- [ ] Queue Items
-- [ ] Queue Customers
-- [ ] Queue Transactions
-- [ ] Teams
-- [ ] Migrations
-- [ ] GRPC
-- [ ] Proto
-- [ ] Models
-- [ ] Bazel
+- [ ] API
 - [ ] Infrastructure
 - [ ] Libraries
-- [ ] Others

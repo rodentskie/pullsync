@@ -4,6 +4,7 @@ import (
 	"errors"
 	"slack-pr-lambda/env"
 	"slack-pr-lambda/types"
+
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
