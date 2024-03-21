@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-func LambdaIamRole(ctx *pulumi.Context) error {
+func LambdaIamRole(ctx *pulumi.Context) (*iam.Role, error) {
 	conf := config.New(ctx, "")
 	lambdaBasicExecRoleArn := conf.Require("lambdaBasicExecRoleArn")
 	lambdaDynamoDBExecRoleArn := conf.Require("lambdaDynamoDBExecRoleArn")
@@ -31,7 +31,7 @@ func LambdaIamRole(ctx *pulumi.Context) error {
 		},
 	}, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	allow := "Allow"
@@ -56,10 +56,10 @@ func LambdaIamRole(ctx *pulumi.Context) error {
 		},
 	}, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = iam.NewRole(ctx, "slack_pr_lambda", &iam.RoleArgs{
+	role, err := iam.NewRole(ctx, "slack_pr_lambda", &iam.RoleArgs{
 		Name:             pulumi.String(lambdaRoleName),
 		AssumeRolePolicy: pulumi.String(assumeRole.Json),
 		ManagedPolicyArns: pulumi.StringArray{
@@ -75,8 +75,8 @@ func LambdaIamRole(ctx *pulumi.Context) error {
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return role, nil
 }

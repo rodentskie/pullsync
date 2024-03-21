@@ -16,8 +16,9 @@ func TestLambdaIamRole(t *testing.T) {
 	}
 
 	err := pulumi.RunErr(func(ctx *pulumi.Context) error {
-		err := LambdaIamRole(ctx)
+		role, err := LambdaIamRole(ctx)
 		assert.NoError(t, err)
+		assert.NotNil(t, role)
 
 		return nil
 	}, pulumimock.WithMocksAndConfig("project", "stack", config, pulumimock.Mocks(0)))
