@@ -11,9 +11,8 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-func LambdaFunction(ctx *pulumi.Context) error {
+func LambdaFunction(ctx *pulumi.Context, role *iam.Role) error {
 	conf := config.New(ctx, "")
-	lambdaRoleName := conf.Require("lambdaRoleName")
 	lambdaFunctionName := conf.Require("lambdaFunctionName")
 	slackToken := conf.Require("slackToken")
 	slackChannel := conf.Require("slackChannel")
@@ -31,17 +30,10 @@ func LambdaFunction(ctx *pulumi.Context) error {
 	dateTimeBytes := []byte(dateTimeString)
 	base64EncodedHash := base64.StdEncoding.EncodeToString(dateTimeBytes)
 
-	iamForLambda, err := iam.LookupRole(ctx, &iam.LookupRoleArgs{
-		Name: lambdaRoleName,
-	}, nil)
-	if err != nil {
-		return err
-	}
-
 	lambdaFn, err := lambda.NewFunction(ctx, "test_lambda", &lambda.FunctionArgs{
 		Code:           pulumi.NewFileArchive(fileName),
 		Name:           pulumi.String(lambdaFunctionName),
-		Role:           pulumi.String(iamForLambda.Arn),
+		Role:           role.Arn,
 		Handler:        pulumi.String("bootstrap"),
 		SourceCodeHash: pulumi.String(base64EncodedHash),
 		Runtime:        pulumi.String("provided.al2023"),

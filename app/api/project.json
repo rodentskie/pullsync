@@ -74,6 +74,13 @@
         "command": "pulumi up -y"
       }
     },
+    "infra.down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi down -y"
+      }
+    },
     "infra.secret": {
       "executor": "nx:run-commands",
       "options": {

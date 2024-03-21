@@ -4,6 +4,7 @@ import (
 	"slack-pr-lambda/pulumimock"
 	"testing"
 
+	"github.com/pulumi/pulumi-aws/sdk/v6/go/aws/iam"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,7 +23,11 @@ func TestLambdaFunction(t *testing.T) {
 	}
 
 	err := pulumi.RunErr(func(ctx *pulumi.Context) error {
-		err := LambdaFunction(ctx)
+		role := &iam.Role{
+			Arn: pulumi.Sprintf("%s", "fakeArn"),
+		}
+
+		err := LambdaFunction(ctx, role)
 		assert.NoError(t, err)
 
 		return nil

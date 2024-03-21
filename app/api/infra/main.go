@@ -10,10 +10,11 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		if err := lambdaiamrole.LambdaIamRole(ctx); err != nil {
+		role, err := lambdaiamrole.LambdaIamRole(ctx)
+		if err != nil {
 			return err
 		}
-		if err := lambda.LambdaFunction(ctx); err != nil {
+		if err := lambda.LambdaFunction(ctx, role); err != nil {
 			return err
 		}
 
