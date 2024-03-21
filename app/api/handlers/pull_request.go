@@ -340,6 +340,20 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+
+			if input.Review.State == "changes_requested" {
+				message := fmt.Sprintf("<@%s> requested a change <%s|comment> %s. \n ", slackUsersMap[input.Review.User.Login], input.Review.HtmlUrl, emoji.RequestedChanges)
+				if len(input.Review.Body) > 0 {
+					message += fmt.Sprintf("```%s```\n", input.Review.Body)
+				}
+				if err := slack.SlackSendMessageThread(timeStamp, message); err != nil {
+					zapLog.Error("error slack send message",
+						zap.Error(err),
+					)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+			}
 		}
 	}
 

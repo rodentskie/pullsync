@@ -1,6 +1,5 @@
 # PullSync
 
-
 ### Description
 Sync notifications of `Github Pull Request` events to your `Slack`.
 
