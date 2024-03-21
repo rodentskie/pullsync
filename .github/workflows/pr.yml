@@ -100,6 +100,7 @@ jobs:
   test:
     needs: target
     runs-on: ubuntu-latest
+    permissions: write-all
     timeout-minutes: 15
 
     env:
@@ -135,12 +136,11 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+      - name: Configure Local AWS Credentials
+        run: |
+          mkdir -p ~/.aws/
+          echo -e "[default]\naws_access_key_id = local\naws_secret_access_key = local" > ~/.aws/credentials
+          echo -e "[default]\nregion = us-east-1\noutput = json" > ~/.aws/config
       - name: Start DynamoDB Local
         run: docker-compose up -d
       - name: Test
