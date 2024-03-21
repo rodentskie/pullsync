@@ -100,7 +100,6 @@ jobs:
   test:
     needs: target
     runs-on: ubuntu-latest
-    permissions: write-all
     timeout-minutes: 15
 
     env:
@@ -137,7 +136,7 @@ jobs:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
