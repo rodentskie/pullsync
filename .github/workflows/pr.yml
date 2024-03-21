@@ -136,6 +136,12 @@ jobs:
         with:
           path: ./node_modules
           key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: local
+          aws-secret-access-key: local
+          aws-region: us-east-1
       - name: Start DynamoDB Local
         run: docker-compose up -d
       - name: Test
