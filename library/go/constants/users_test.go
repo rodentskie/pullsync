@@ -9,7 +9,7 @@ func TestSlackUsers(t *testing.T) {
 	expected := &Users{
 		PaulWaltersDev:     "U020E8T5PC5",
 		MeganSitoyPractera: "U04MFRK6350",
-		Rodentskie:         "U046JKYN3BQ",
+		Rodentskie:         "U06Q5GKADME",
 		Rodentskiie:        "U06Q7E7QFNX",
 		Trtshen:            "U1GBY5XKJ",
 		TerenceCoder:       "U1GJ48N5V",
