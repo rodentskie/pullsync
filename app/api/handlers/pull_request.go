@@ -48,9 +48,12 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	// read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		zapLog.Fatal("error read request body",
+
+		zapLog.Error("error read request body",
 			zap.Error(err),
 		)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
 
 	if env != "local" {
@@ -70,7 +73,11 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 	// get unique action key
 	var action string
 	if err := json.Unmarshal(result["action"], &action); err != nil {
-		log.Fatal(err)
+		zapLog.Error("error parse action from req body",
+			zap.Error(err),
+		)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
 
 	// Opened new pull request
