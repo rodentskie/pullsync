@@ -6,8 +6,8 @@ settings:
 
 devDependencies:
   '@nx-go/nx-go':
-    specifier: 2.8.0
-    version: 2.8.0
+    specifier: 3.0.0-beta.1
+    version: 3.0.0-beta.1(nx@18.0.8)
   '@nx/js':
     specifier: 18.0.8
     version: 18.0.8(@types/node@20.11.25)(nx@18.0.8)(typescript@5.4.2)
@@ -1413,10 +1413,13 @@ packages:
       - debug
     dev: true
 
-  /@nx-go/nx-go@2.8.0:
-    resolution: {integrity: sha512-ys0RcwCirwe1vFxDDyCRWyxp0hDpBsmvgAumyf4oXDNYdQBBOETij9d91d5pu74nNky32aK0/H4msA1c+fTsCw==}
+  /@nx-go/nx-go@3.0.0-beta.1(nx@18.0.8):
+    resolution: {integrity: sha512-X7uChb3nTEj8mLJd8QKC3hD8VUhIVAViwAMEWv6Ams1ZMKUtxLvZPQuhyKshxxbLcuGTXu8DiWCSHhS8YmqkhA==}
     dependencies:
-      fs-extra: 9.1.0
+      '@nx/devkit': 18.0.8(nx@18.0.8)
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - nx
     dev: true
 
   /@nx/devkit@18.0.8(nx@18.0.8):
@@ -1714,11 +1717,6 @@ packages:
 
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
-    dev: true
-
-  /at-least-node@1.0.0:
-    resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
-    engines: {node: '>= 4.0.0'}
     dev: true
 
   /axios@1.6.7:
@@ -2186,16 +2184,6 @@ packages:
     resolution: {integrity: sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==}
     engines: {node: '>=14.14'}
     dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.1.0
-      universalify: 2.0.1
-    dev: true
-
-  /fs-extra@9.1.0:
-    resolution: {integrity: sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==}
-    engines: {node: '>=10'}
-    dependencies:
-      at-least-node: 1.0.0
       graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.1
