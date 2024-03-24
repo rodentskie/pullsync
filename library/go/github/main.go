@@ -4,8 +4,9 @@ import (
 	"context"
 	"slack-pr-lambda/env"
 
-	"github.com/google/go-github/v39/github"
 	"golang.org/x/oauth2"
+
+	"github.com/google/go-github/v39/github"
 )
 
 func GetPullRequestId(repo string, prNumber int) (int64, error) {
