@@ -530,6 +530,14 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		if err := slack.SlackAddReaction(timeStamp, strings.ReplaceAll(emoji.Opened, ":", "")); err != nil {
+			zapLog.Error("error slack add reaction",
+				zap.Error(err),
+			)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
 		svc := db.DynamoDbConnection()
 		item := &types.TablePullRequestData{
 			ID:             fmt.Sprintf("%d", input.PullRequest.ID),
