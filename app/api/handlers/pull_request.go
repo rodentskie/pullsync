@@ -92,7 +92,13 @@ func PullRequestHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
-		messageText := fmt.Sprintf("<@%s> %s opened new <%s|pull request> in `%s`.", slackUsersMap[input.Sender.Login], emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
+
+		user := slackUsersMap[input.Sender.Login]
+		if input.Sender.Login == "dependabot[bot]" {
+			user = "dependabot[bot]"
+		}
+
+		messageText := fmt.Sprintf("<@%s> %s opened new <%s|pull request> in `%s`.", user, emoji.Opened, input.PullRequest.HtmlUrl, input.Repository.Name)
 		timeStamp, err := slack.SlackSendMessage(input, messageText)
 		if err != nil {
 			zapLog.Error("error slack send message",
