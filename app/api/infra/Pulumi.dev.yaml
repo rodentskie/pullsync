@@ -3,17 +3,17 @@ config:
   aws:region: ap-southeast-2
   infrastructure:dbEndpoint: https://dynamodb.ap-southeast-2.amazonaws.com
   infrastructure:env: stage
-  infrastructure:githubOwner: intersective
+  infrastructure:githubOwner: rodentskie
   infrastructure:githubToken:
-    secure: v1:neFOFeOaIQQ8U9aY:BGJqONjL1m6VRuEbzbNrwu6oYai7bDP8ie/jupZk2Tod2q1T3Zq1+SRKMGDkgdWdiGFAlF8/tCE=
+    secure: v1:tjp1W4c/jZzH3fZ1:pcCF/Mf6KAUqRiLpfaG+3/dkscZ7u6TSNvz4OqxF1lesiGJzghkRn3DSK6LsuPOWRZbRSAJv2aU=
   infrastructure:lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
   infrastructure:lambdaDynamoDBExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole
   infrastructure:lambdaFunctionName: slack_pr_lambda
   infrastructure:lambdaRoleName: slack_pr_lambda_role
   infrastructure:region: ap-southeast-2
-  infrastructure:slackChannel: C06Q1FDPTUZ
+  infrastructure:slackChannel: C06Q5J7CUU8
   infrastructure:slackToken:
-    secure: v1:BXKZAru+h587/ddW:wBVtknqg5BmH5nTiSvu5jFgAETVcMGfHHoqblzAAHQXfJfMCFxjyGVQplNUfLiL5Vr2Mu70GCVDW/th8/hNiRTem4JKqGw==
+    secure: v1:zPU/AGSUZQtCK3lr:xGqtfZmJ5hXJS9pwG52QZz7m2wB24vYXTouy1U7X7EqXKxkyO36znhqozqnnuBwJ9gdV/KzwDh1EaAZTMwn/Pfhts4DRO8Fy6w==
   infrastructure:tableName: PullRequests
   infrastructure:tableNameIndex: PullRequestIdIndex
   pulumi:tags:
