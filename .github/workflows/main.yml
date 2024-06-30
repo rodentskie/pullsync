@@ -206,6 +206,7 @@ jobs:
       PULUMI_BUCKET: pullsync-infra-state
       AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }} # p2-stage
       REGION: ap-southeast-2
+      PULUMI_STACK: dev
     steps:
       - uses: actions/checkout@v4
         with:

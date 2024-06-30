@@ -71,7 +71,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}/infra",
-        "command": "pulumi up -y"
+        "command": "pulumi up -y --stack $PULUMI_STACK --yes"
       }
     },
     "infra.cancel": {
