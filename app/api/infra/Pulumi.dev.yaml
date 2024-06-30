@@ -3,7 +3,7 @@ config:
   aws:region: ap-southeast-2
   infrastructure:dbEndpoint: https://dynamodb.ap-southeast-2.amazonaws.com
   infrastructure:env: stage
-  infrastructure:githubOwner: intersective
+  infrastructure:githubOwner: rodentskie
   infrastructure:githubToken:
     secure: v1:tjp1W4c/jZzH3fZ1:pcCF/Mf6KAUqRiLpfaG+3/dkscZ7u6TSNvz4OqxF1lesiGJzghkRn3DSK6LsuPOWRZbRSAJv2aU=
   infrastructure:lambdaBasicExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
