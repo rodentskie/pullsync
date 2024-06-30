@@ -194,8 +194,7 @@ jobs:
 
   deploy:
     needs:
-      - lint
-      - test
+      - build
     runs-on: ubuntu-latest
     permissions: write-all
     timeout-minutes: 15
