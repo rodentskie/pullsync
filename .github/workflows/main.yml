@@ -4,7 +4,7 @@ name: main
 on:
   push:
     branches:
-      - feat/deploy-ci
+      - main
   workflow_dispatch:
 
 jobs:
@@ -244,5 +244,10 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-restricted-role-to-assume
           region: ${{ env.REGION }}
+      - name: Install pulumi
+        uses: pulumi/setup-pulumi@v2
+        with:
+          pulumi-version: 3.116.1
+      - run: pulumi login s3://"$PULUMI_BUCKET"
       - name: Deploy
         run: bash tools/scripts/affected.sh
