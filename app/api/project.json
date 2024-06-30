@@ -45,6 +45,13 @@
         "command": "go get {args.package}"
       }
     },
+    "lambda.build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "make build"
+      }
+    },
     "lambda.serve": {
       "executor": "nx:run-commands",
       "options": {
@@ -52,13 +59,6 @@
         "command": "sam local start-api"
       },
       "dependsOn": ["lambda.build"]
-    },
-    "lambda.build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "{projectRoot}",
-        "command": "make build"
-      }
     },
     "infra.preview": {
       "executor": "nx:run-commands",
