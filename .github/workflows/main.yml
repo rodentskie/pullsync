@@ -239,14 +239,16 @@ jobs:
           path: ./app/api/bin
           key: bin-${{ github.sha }}-${{ github.ref }}-
       - name: Configure AWS Credentials
-        uses: ./.github/actions/aws-oidc
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-restricted-role-to-assume
-          region: ${{ env.REGION }}
-      - name: Install pulumi
-        uses: pulumi/setup-pulumi@v2
-        with:
-          pulumi-version: 3.116.1
-      - run: pulumi login s3://"$PULUMI_BUCKET"
-      - name: Deploy
-        run: bash tools/scripts/affected.sh
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+      - run: aws s3 ls
+      # - name: Install pulumi
+      #   uses: pulumi/setup-pulumi@v2
+      #   with:
+      #     pulumi-version: 3.116.1
+      # - run: pulumi login s3://"$PULUMI_BUCKET"
+      # - name: Deploy
+      #   run: bash tools/scripts/affected.sh
