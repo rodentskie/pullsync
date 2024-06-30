@@ -1,0 +1,253 @@
+---
+name: main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  target:
+    permissions: write-all
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      BASE_REF: main~1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: "^1.22"
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Show affected apps
+        run: |
+          bash tools/scripts/print-affected.sh
+
+  lint:
+    needs: target
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: main~1
+      TARGET: lint
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: "^1.22"
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: cache-npm
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Lint
+        run: bash tools/scripts/affected.sh
+
+  test:
+    needs: target
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: main~1
+      TARGET: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: "^1.22"
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Configure Local AWS Credentials
+        run: |
+          mkdir -p ~/.aws/
+          echo -e "[default]\naws_access_key_id = local\naws_secret_access_key = local" > ~/.aws/credentials
+          echo -e "[default]\nregion = us-east-1\noutput = json" > ~/.aws/config
+      - name: Start DynamoDB Local
+        run: docker-compose up -d
+      - name: Test
+        run: bash tools/scripts/affected.sh
+        env:
+          GORACE: atexit_sleep_ms=0
+      - name: Stop DynamoDB Local
+        if: always()
+        run: docker-compose down
+
+  build:
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: main~1
+      TARGET: lambda.build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: "^1.22"
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - name: Lambda build
+        run: bash tools/scripts/affected.sh
+      - uses: actions/cache@v4
+        with:
+          path: ./app/api/bin
+          key: bin-${{ github.sha }}-${{ github.ref }}-
+
+  deploy:
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    permissions: write-all
+    timeout-minutes: 15
+
+    env:
+      BASE_REF: main~1
+      TARGET: infra.up
+      PULUMI_CONFIG_PASSPHRASE: ${{ secret.PULUMI_CONFIG_PASSPHRASE }}
+      PULUMI_BUCKET: pullsync-infra-state
+      AWS_ACCOUNT: ${{ secret.AWS_ACCOUNT }} # p2-stage
+      REGION: ap-southeast-2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"
+      - uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: "^1.22"
+          cache-dependency-path: "**/*.sum"
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+      - uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          key: pnpm-${{ github.sha }}-${{ github.ref }}-${{ runner.os }}-
+      - uses: actions/cache@v4
+        with:
+          path: ./app/api/bin
+          key: bin-${{ github.sha }}-${{ github.ref }}-
+      - name: Configure AWS Credentials
+        uses: ./.github/actions/aws-oidc
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-restricted-role-to-assume
+          region: ${{ env.REGION }}
+      - name: Install pulumi
+        uses: pulumi/setup-pulumi@v2
+        with:
+          pulumi-version: 3.116.1
+      - run: pulumi login s3://"$PULUMI_BUCKET"
+      - name: Deploy
+        run: bash tools/scripts/affected.sh
