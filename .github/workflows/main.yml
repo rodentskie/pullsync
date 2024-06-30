@@ -203,9 +203,9 @@ jobs:
     env:
       BASE_REF: main~1
       TARGET: infra.up
-      PULUMI_CONFIG_PASSPHRASE: ${{ secret.PULUMI_CONFIG_PASSPHRASE }}
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
       PULUMI_BUCKET: pullsync-infra-state
-      AWS_ACCOUNT: ${{ secret.AWS_ACCOUNT }} # p2-stage
+      AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }} # p2-stage
       REGION: ap-southeast-2
     steps:
       - uses: actions/checkout@v4
