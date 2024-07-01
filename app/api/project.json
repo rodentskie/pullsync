@@ -71,7 +71,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}/infra",
-        "command": "pulumi up -y --stack $PULUMI_STACK --yes"
+        "command": "pulumi up -y --stack $PULUMI_STACK"
       }
     },
     "infra.cancel": {
@@ -85,7 +85,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}/infra",
-        "command": "pulumi down -y"
+        "command": "pulumi down -y --stack $PULUMI_STACK"
       }
     },
     "infra.secret": {
