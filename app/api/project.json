@@ -67,18 +67,18 @@
         "command": "pulumi preview"
       }
     },
-    "infra.up": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "{projectRoot}/infra",
-        "command": "pulumi up -y --stack $PULUMI_STACK"
-      }
-    },
     "infra.cancel": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}/infra",
         "command": "pulumi cancel"
+      }
+    },
+    "infra.up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi up -y --stack $PULUMI_STACK"
       }
     },
     "infra.down": {
