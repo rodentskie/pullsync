@@ -88,18 +88,18 @@
         "command": "pulumi down -y --stack $PULUMI_STACK"
       }
     },
-    "infra.secret": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "{projectRoot}/infra",
-        "command": "pulumi config set --secret {args.key} {args.value}"
-      }
-    },
     "infra.plaintext": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}/infra",
         "command": "pulumi config set --plaintext {args.key} {args.value}"
+      }
+    },
+    "infra.secret": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}/infra",
+        "command": "pulumi config set --secret {args.key} {args.value}"
       }
     }
   }
