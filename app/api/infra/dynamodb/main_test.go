@@ -10,7 +10,7 @@ import (
 
 func TestDynamoDB(t *testing.T) {
 	config := map[string]string{
-		"project:region":         "ap-southeast-2",
+		"project:region":         "ap-southeast-1",
 		"project:env":            "test",
 		"project:tableName":      "testTable",
 		"project:tableNameIndex": "testTableIndex",

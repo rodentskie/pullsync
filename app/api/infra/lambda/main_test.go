@@ -17,7 +17,7 @@ func TestLambdaFunction(t *testing.T) {
 		"project:slackChannel":       "testChannel",
 		"project:env":                "test",
 		"project:dbEndpoint":         "testEndpoint",
-		"project:region":             "ap-southeast-2",
+		"project:region":             "ap-southeast-1",
 		"project:githubOwner":        "foo",
 		"project:githubToken":        "bar",
 	}

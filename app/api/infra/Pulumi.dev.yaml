@@ -1,7 +1,7 @@
 encryptionsalt: v1:cAPbxz5qq94=:v1:FoLbd7ETvxeBe6im:OrEs1FFO0KsQ536nwtkHcu28thRFGw==
 config:
-  aws:region: ap-southeast-2
-  infrastructure:dbEndpoint: https://dynamodb.ap-southeast-2.amazonaws.com
+  aws:region: ap-southeast-1
+  infrastructure:dbEndpoint: https://dynamodb.ap-southeast-1.amazonaws.com
   infrastructure:env: stage
   infrastructure:githubOwner: rodentskie
   infrastructure:githubToken:
@@ -10,7 +10,7 @@ config:
   infrastructure:lambdaDynamoDBExecRoleArn: arn:aws:iam::aws:policy/service-role/AWSLambdaDynamoDBExecutionRole
   infrastructure:lambdaFunctionName: slack_pr_lambda
   infrastructure:lambdaRoleName: slack_pr_lambda_role
-  infrastructure:region: ap-southeast-2
+  infrastructure:region: ap-southeast-1
   infrastructure:slackChannel: C06Q5J7CUU8
   infrastructure:slackToken:
     secure: v1:zPU/AGSUZQtCK3lr:xGqtfZmJ5hXJS9pwG52QZz7m2wB24vYXTouy1U7X7EqXKxkyO36znhqozqnnuBwJ9gdV/KzwDh1EaAZTMwn/Pfhts4DRO8Fy6w==
