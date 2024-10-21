@@ -23,7 +23,7 @@ func TestIndexRequestHandler(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	expected := `{"message":"Welcome to Slack PR Lamba NDDU demo."}`
+	expected := `{"message":"Welcome to Slack PR Lamba."}`
 	if !strings.Contains(rr.Body.String(), expected) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
