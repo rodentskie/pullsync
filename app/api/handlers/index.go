@@ -24,7 +24,7 @@ func IndexRequestHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	bodyBytes := Response{
-		Message: "Welcome to Slack PR Lamba NDDU demo.",
+		Message: "Welcome to Slack PR Lamba.",
 	}
 
 	j, err := json.Marshal(bodyBytes)
