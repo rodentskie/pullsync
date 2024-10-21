@@ -56,11 +56,11 @@ You need to create an [app](https://api.slack.com/apps) then add the following s
 
 ### Development
 
-You must have `docker` and `docker-compose` installed.
+You must have `docker` and `docker compose` installed.
 Prerequisite is we need to run `dynamodb` locally.
 
 ```
-docker-compose up -d
+docker compose up -d
 ```
 
 The `api` service can be run directly as `REST API` or through `lambda` function using `SAM CLI`.
